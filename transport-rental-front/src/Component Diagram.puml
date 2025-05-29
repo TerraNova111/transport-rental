@@ -1,0 +1,28 @@
+@startuml
+actor User
+participant "React Client" as Client
+participant "BookingController" as Controller
+participant "BookingService" as Service
+participant "UserRepository" as UserRepo
+participant "VehicleRepository" as VehicleRepo
+participant "BookingRepository" as BookingRepo
+database "PostgreSQL" as DB
+
+User -> Client : нажимает "Забронировать"
+Client -> Controller : POST /bookings {vehicleId, dateFrom, dateTo}\n(с JWT)
+Controller -> Service : createBooking(request, user)
+Service -> UserRepo : findByEmail(from JWT)
+UserRepo -> DB : SELECT * FROM users WHERE email=...
+DB --> UserRepo : User
+Service -> VehicleRepo : findById(vehicleId)
+VehicleRepo -> DB : SELECT * FROM vehicles WHERE id=...
+DB --> VehicleRepo : Vehicle
+Service -> BookingRepo : save(Booking)
+BookingRepo -> DB : INSERT INTO bookings ...
+DB --> BookingRepo : Booking (id, status: PENDING)
+BookingRepo --> Service : Booking
+Service --> Controller : BookingResponse
+Controller --> Client : 201 Created + booking data
+Client --> User : Показать подтверждение
+
+@enduml

@@ -1,0 +1,206 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+:root {
+  font-family: Inter, sans-serif;
+  line-height: 1.5;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+}
+
+
+a {
+  font-size: 15px;
+  padding: 0 10px;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+.start-slogan{
+  top: 200px;
+  left: 80px;
+  position: absolute;
+
+  font-family: Inter, sans-serif;
+
+  text-transform: none;
+
+}
+
+.logo{
+  width: 300px;
+  height: 50px;
+  margin-bottom: 10px;
+}
+
+.login, .logout, .profile-button{
+  padding: 15px 70px;
+
+  transition: background-color 0.3s ease, color 0.3s ease;
+  text-transform: uppercase;
+
+  font-size: 15px;
+}
+
+
+
+.login:hover, .logout:hover, .profile-button:hover{
+  color: #000;
+  background-color: #d4e4ed;
+}
+
+.makePrice{
+  padding: 20px;
+  background-color: #0073b6;
+
+  border-radius: 20px;
+
+  width: 200px;
+  text-align: start;
+
+
+
+  transition: background-color 0.3s ease;
+}
+.makePrice:hover{
+  background-color: #019bf3;
+}
+
+.auth-popup{
+  padding: 100px 50px;
+}
+
+.modal-close{
+  position: absolute;
+  top: 15px;
+  right: -95%;
+
+  font-size: 36px;
+}
+
+.auth-bg{
+  border-bottom-right-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
+
+.top-header{
+  background: #0073b6;
+}
+
+.nav-items{
+  padding: 35px 100px;
+  flex-grow: 1;
+
+  text-align: center;
+
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.nav-items:hover{
+  background-color: #0073b6;
+
+  text-decoration: none;
+
+  color: #fff;
+}
+
+.auth-change{
+  position: absolute;
+  top: 200px;
+}
+
+.auth-button{
+  padding: 10px 20px;
+  border-radius: 20px;
+
+  width: 70%;
+  margin: 0 auto;
+}
+
+.catalog{
+  border-radius: 100px;
+}
+
+.tab-section{
+  border-radius: 100px;
+  .tab-section-br{
+    background-color: #00accd;
+    width: 80rem;
+    height: 35rem;
+    border-radius: 1.2rem;
+
+    position: relative;
+
+    .tab-section-br-text{
+      padding: 8rem 0 8rem 4rem;
+      height: 100%;
+
+      .more-about{
+        transition: background-color 0.5s ease;
+      }
+
+      .more-about:hover{
+        background-color: #019dba;
+
+        text-decoration: none;
+      }
+    }
+    .tab-section-icon{
+      position: absolute;
+      right: 0;
+      top: 100px;
+      width: 420px;
+      height: 420px;
+
+    }
+  }
+}
+
+.profile, .admin-panel, .catalog, .vehicle-page{
+  padding-top: 300px;
+}
+
+.avatar-bg{
+  background: #0073B6;
+  background: radial-gradient(circle, rgba(0, 115, 182, 1) 0%, rgba(11, 80, 120, 1) 99%);
+}
+
+.edit-avatar{
+  position: absolute;
+  top: 100px;
+  left: 150px;
+
+  background-color: white;
+  padding: 10px;
+
+  border-radius: 10px;
+
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.edit-avatar:hover{
+  background-color: #0b6ca5;
+
+  color: white;
+}

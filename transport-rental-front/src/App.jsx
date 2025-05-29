@@ -1,0 +1,46 @@
+import { Routes, Route, Link } from 'react-router-dom'
+import HomePage from './pages/HomePage.tsx'
+import './index.css'
+import Header from "./components/Header.js";
+import ProfilePage from "./pages/ProfilePage.tsx";
+import Footer from "./components/Footer.js";
+import AdminPanelPage from "./pages/AdminPanelPage.tsx";
+import ProtectedRoute from "./routes/ProtectedRoute.js";
+import CatalogPage from "./pages/CatalogPage.tsx";
+import VehiclePage from "./pages/VehiclePage.js";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage.js";
+
+
+export default function App() {
+    return (
+            <div className="min-h-screen">
+                <Header/>
+
+                <main className="">
+                    <Routes>
+                        <Route path="/" element={<HomePage/>}/>
+                        <Route path="/profile"
+                               element={
+                                   <ProtectedRoute>
+                                       <ProfilePage/>
+                                   </ProtectedRoute>
+                               }
+                        />
+                        <Route path="/admin"
+                               element={
+                                   <ProtectedRoute>
+                                       <AdminPanelPage/>
+                                   </ProtectedRoute>
+                               }
+                        />
+                        <Route path="/catalog" element={<CatalogPage/>}/>
+                        <Route path="/vehicle/:id" element={<VehiclePage/>}/>
+                        <Route path="/payment-success" element={<PaymentSuccessPage />} />
+                    </Routes>
+                </main>
+
+                <Footer/>
+            </div>
+    )
+
+}
