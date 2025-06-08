@@ -1,6 +1,6 @@
 package com.example.transportrental.dto.booking;
 
-import com.example.transportrental.model.BookingStatus;
+import com.example.transportrental.model.enums.BookingStatus;
 import lombok.Data;
 
 import java.time.LocalDate;

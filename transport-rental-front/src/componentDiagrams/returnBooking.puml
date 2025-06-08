@@ -1,0 +1,25 @@
+@startuml
+actor User
+actor Admin
+participant Frontend
+participant BookingController
+participant BookingService
+participant Database
+
+== User initiates return ==
+User -> Frontend : Clicks "Confirm Return"
+Frontend -> BookingController : POST /api/bookings/{id}/request-return
+BookingController -> BookingService : requestReturn(bookingId)
+BookingService -> Database : UPDATE Booking SET status = RETURN_REQUESTED
+BookingService --> BookingController : OK
+BookingController --> Frontend : 200 OK
+
+== Admin initiates return ==
+Admin -> Frontend : Clicks "Confirm Return"
+Frontend -> BookingController : POST /api/bookings/{id}/confirm-return
+BookingController -> BookingService : confirmReturn(bookingId)
+BookingService -> Database : UPDATE Booking SET status = RETURNED
+BookingService --> BookingController : OK
+BookingController --> Frontend : 200 OK
+
+@enduml

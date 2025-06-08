@@ -1,13 +1,16 @@
 package com.example.transportrental.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.example.transportrental.model.enums.ServiceCategory;
+import com.example.transportrental.model.enums.WorkCategory;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
-@ToString
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,6 +18,7 @@ import java.util.List;
 @Entity
 @Table(name = "vehicles")
 public class Vehicle {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,11 +26,17 @@ public class Vehicle {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "text")
     private String description;
 
     @Column(nullable = false)
     private String category;
+
+    @Enumerated(EnumType.STRING)
+    private ServiceCategory serviceCategory;
+
+    @Column
+    private Integer quantity;
 
     @Column(nullable = false)
     private BigDecimal pricePerDay;
@@ -39,4 +49,8 @@ public class Vehicle {
 
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL)
     private List<Booking> bookings;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "description_detailed", columnDefinition = "jsonb")
+    private Map<String, Object> descriptionDetailed;
 }

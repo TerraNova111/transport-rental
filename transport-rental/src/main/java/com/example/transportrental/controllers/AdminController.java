@@ -31,11 +31,27 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/{vehicleId}/image")
+    public ResponseEntity<String> updateVehicleImage(
+            @PathVariable Long vehicleId,
+            @RequestParam("imageFile") MultipartFile imageFile) {
+        vehicleService.updateVehicleImage(vehicleId, imageFile);
+        return ResponseEntity.ok("Изображение успешно обновлено");
+    }
+
     @DeleteMapping("/vehicles/{id}")
     public ResponseEntity<?> deleteVehicle(@PathVariable Long id) {
         vehicleService.deleteVehicle(id);
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/vehicles/{id}")
+    public ResponseEntity<?> updateVehicle(
+            @PathVariable Long id,
+            @RequestBody VehicleDTO vehicleDTO
+    ) {
+        vehicleService.updateVehicle(vehicleDTO, id);
+        return ResponseEntity.ok().build();
+    }
 
 }

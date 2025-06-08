@@ -1,0 +1,43 @@
+@startuml
+' Explicitly tell PlantUML that this is a component diagram
+!pragma diagramType component
+
+' Компоненты
+component "PostgreSQL Service" as postgres {
+  [postgres:15]
+  note right of postgres
+    Container: transport_rental_db
+    Port: 5432:5432
+    Volume: pg_data:/var/lib/postgresql/data
+  end note
+}
+
+component "Backend Service" as backend {
+  [Spring Boot Backend]
+  note right of backend
+    Build context: ./transport-rental
+    Container: transport_rental_backend
+    Port: 8080:8080
+    Depends on: postgres
+    Environment:
+    - SPRING_DATASOURCE_URL
+    - SPRING_DATASOURCE_USERNAME
+    - SPRING_DATASOURCE_PASSWORD
+  end note
+}
+
+component "Frontend Service" as frontend {
+  [React Frontend]
+  note right of frontend
+    Build context: ./transport-rental-front
+    Container: transport_rental_frontend
+    Port: 3000:80
+    Depends on: backend
+  end note
+}
+
+' Связи
+postgres --> backend : PostgreSQL connection
+backend --> frontend : REST API
+
+@enduml

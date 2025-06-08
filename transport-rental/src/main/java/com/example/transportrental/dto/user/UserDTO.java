@@ -1,6 +1,6 @@
 package com.example.transportrental.dto.user;
 
-import com.example.transportrental.model.Role;
+import com.example.transportrental.model.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

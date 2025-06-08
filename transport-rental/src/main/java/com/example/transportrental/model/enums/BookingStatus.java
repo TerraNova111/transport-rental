@@ -1,4 +1,4 @@
-package com.example.transportrental.model;
+package com.example.transportrental.model.enums;
 
 public enum BookingStatus {
     PENDING,

@@ -1,0 +1,70 @@
+@startuml
+entity User {
+  * id : Long <<PK>>
+  --
+  name: String
+  email : String
+  password : String
+  name : String
+  address : String
+  role : String
+}
+
+entity Vehicle {
+  * id : Long <<PK>>
+  --
+  name : String
+  description : String
+  price_per_day : Decimal
+  category : String
+  serviceCategory: String
+  available: String
+  quantity: Int
+}
+
+
+entity Booking {
+  * id : Long <<PK>>
+  --
+  user_id : Long <<FK>>
+  vehicle_id : Long <<FK>>
+  startDate : Date
+  endDate : Date
+  status : String
+  delivery_address_id : Long <<FK>> [nullable]
+  loading_address_id : Long <<FK>> [nullable]
+  unloading_address_id : Long <<FK>> [nullable]
+}
+
+entity Payment {
+  * id : Long <<PK>>
+  --
+  booking_id : Long <<FK>>
+  amount : Decimal
+  payment_date : DateTime
+  payment_status : String
+  stripe_payment_id : String
+}
+
+entity Address {
+  * id : Long <<PK>>
+  --
+  user_id : Long <<FK>>
+  label: String
+  street : String
+  city : String
+  state : String
+  zip_code : String
+  latitude : Decimal
+  longitude : Decimal
+  additionalInfo : String
+}
+
+' Связи
+User ||--o{ Booking : "makes"
+Booking }|--|| Vehicle : "for"
+Booking }|--o| Address : "delivered to"
+Booking ||--|| Payment : "has"
+User ||--o{ Address : "has"
+
+@enduml

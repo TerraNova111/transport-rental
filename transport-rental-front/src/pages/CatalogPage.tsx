@@ -1,70 +1,175 @@
-import React, { useEffect, useState } from "react";
-import axios from "../utils/axios";
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { categoryOptions } from '../constants/CategoryOptions';
 import { Vehicle } from "../types/Vehicle";
-import homeBg from "../assets/catalog-bg.jpg";
-import {Link} from "react-router-dom";
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 
 const CatalogPage: React.FC = () => {
+    const { serviceCategory, category } = useParams<{ serviceCategory: string; category?: string }>();
+    const navigate = useNavigate();
+
     const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [expandedVehicleId, setExpandedVehicleId] = useState<string | null>(null);
+
+    const categories =
+        categoryOptions[serviceCategory as keyof typeof categoryOptions] || [];
 
     useEffect(() => {
-        axios.get("/api/vehicles/available")
-            .then(res => setVehicles(res.data))
-            .catch(err => console.error(err));
-    }, []);
+        window.scrollTo(0, 0);
+    }, [location.pathname]);
+
+    useEffect(() => {
+        if (!serviceCategory) return;
+
+        setLoading(true);
+        let url = `/api/vehicles/available?serviceCategory=${serviceCategory}`;
+        if (category) {
+            url += `&category=${encodeURIComponent(category)}`;
+        }
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                setVehicles(data);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setLoading(false);
+            });
+    }, [serviceCategory, category]);
+
+    const onCategoryClick = (cat: string) => {
+        navigate(`/catalog/${serviceCategory}/${encodeURIComponent(cat)}`);
+    };
+
+    const toggleExpand = (vehicleId: string) => {
+        setExpandedVehicleId(prev => (prev === vehicleId ? null : vehicleId));
+    };
 
     return (
-        <div className="w-full">
-            <section
-                className="relative h-screen bg-fixed bg-center bg-cover bg-no-repeat"
-                style={{backgroundImage: `url(${homeBg})`}}
-            >
-                <div className="absolute inset-0 bg-black bg-opacity-50 z-10"/>
-                <div className="relative z-20 h-full flex items-center justify-start px-14 text-white">
-                    <div>
-                        <h1 className="text-4xl md:text-6xl font-bold mb-4">
-                            Наша техника
-                        </h1>
-                        <p className="text-xl md:text-2xl mb-6">
-                            Аренда спецтехники и транспортных услуг с онлайн-бронированием
-                        </p>
-                        <button className="bg-blue-600 hover:bg-blue-700 transition px-6 py-2 rounded-lg">
-                            Расчитать стоимость
-                        </button>
-                    </div>
-                </div>
-            </section>
-            <div className="catalog min-h-screen relative z-30 -mt-24 bg-white shadow-lg">
-                <div className="max-w-5xl mx-auto p-4">
-                    <h1 className="text-2xl font-bold mb-4">Каталог техники</h1>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4">
-                        {vehicles.map(vehicle => (
-                            <div key={vehicle.id} className="border rounded p-4 shadow-sm">
-                                <img
-                                    src={`http://localhost:8080/uploads/${vehicle.imageUrl}`}
-                                    alt={vehicle.name}
-                                    className="w-full h-40 object-cover rounded mb-2"
-                                />
-                                <h2 className="text-xl font-semibold">{vehicle.name}</h2>
-                                <p className="text-gray-600">{vehicle.category}</p>
-                                <p className="text-sm text-gray-500">{vehicle.description}</p>
-                                <p className="mt-2 font-bold">{vehicle.pricePerDay}₸ / день</p>
-                                <button
-                                    className="mt-3 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                                    onClick={() => alert("Открыть страницу бронирования")}
+        <div className="catalog-page ">
+            <div className="w-full bg-gray-100 p-0">
+                <div className="max-w-7xl m-auto">
+                    <nav className="text-sm text-gray-600  py-5">
+                        <Link to="/catalog" className="hover:underline">Каталог</Link>
+                        {serviceCategory && (
+                            <>
+                                <span className="">/</span>
+                                <Link
+                                    to={`/catalog/${serviceCategory}`}
+                                    className="hover:underline capitalize"
                                 >
-                                    Забронировать
-                                </button>
-                                <Link to={`/vehicle/${vehicle.id}`}>
-                                    <p className="font-medium">Подробнее</p>
+                                    {serviceCategory}
                                 </Link>
-                            </div>
-                        ))}
-                    </div>
+                            </>
+                        )}
+                        {category && (
+                            <>
+                                <span className="mx-2">/</span>
+                                <span className="capitalize">{category}</span>
+                            </>
+                        )}
+                    </nav>
+                    <h1 className="text-4xl font-bold mt-2 pt-14 pb-5">
+                        {serviceCategory && (
+                            <>
+                                {serviceCategory === 'RENTAL' ? 'Аренда' : serviceCategory}
+                                {category ? ` ${category}а` : ''}
+                            </>
+                        )}
+                    </h1>
+                </div>
+            </div>
+            <div className="flex flex-col max-w-7xl m-auto">
+                {/* Main Content */}
+                <div className="flex flex-1">
+                    {/* Sidebar */}
+                    <aside className="w-64 p-4 border-r">
+                        <h3 className="font-bold mb-2">Категории</h3>
+                        <ul>
+                            <li
+                                className={`cursor-pointer mb-1 ${!category ? 'font-bold text-yellow-500' : ''}`}
+                                onClick={() => navigate(`/catalog/${serviceCategory}`)}
+                            >
+                                Все
+                            </li>
+                            {categories.map(cat => (
+                                <li
+                                    key={cat.value}
+                                    className={`cursor-pointer mb-1 ${category === cat.value ? 'font-bold text-yellow-500' : ''}`}
+                                    onClick={() => onCategoryClick(cat.value)}
+                                >
+                                    {cat.label}
+                                </li>
+                            ))}
+                        </ul>
+                    </aside>
+
+                    {/* Vehicle Cards */}
+                    <main className="flex-1 p-4">
+                        {loading ? (
+                            <p>Загрузка...</p>
+                        ) : vehicles.length === 0 ? (
+                            <p>Техника не найдена</p>
+                        ) : (
+                            <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {vehicles.map(vehicle => (
+                                    <li key={vehicle.id}
+                                        className="border rounded-lg shadow-sm p-4 bg-white flex flex-col">
+                                        <img
+                                            src={`http://localhost:8080/uploads/${vehicle.imageUrl}`}
+                                            alt={vehicle.name}
+                                            className="w-full h-40 object-cover rounded mb-2"
+                                        />
+                                        <h4 className="text-lg font-semibold mb-1">{vehicle.name}</h4>
+                                        <p className="text-sm text-gray-500 mb-2">
+                                            {vehicle.category}
+                                        </p>
+                                        <p className="text-green-600 font-bold mb-2">
+                                            {vehicle.pricePerDay}₸ <span
+                                            className="text-gray-500 font-normal">/ день</span>
+                                        </p>
+                                        <div className="flex justify-between items-center mb-2">
+                                            <button
+                                                onClick={() => toggleExpand(vehicle.id.toString())}
+                                                className="text-blue-600 hover:text-blue-800 flex items-center"
+                                            >
+                                                {expandedVehicleId === vehicle.id.toString() ? (
+                                                    <>
+                                                        <ChevronUpIcon className="w-5 h-5 mr-1"/>
+                                                        Скрыть характеристики
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <ChevronDownIcon className="w-5 h-5 mr-1"/>
+                                                        Показать характеристики
+                                                    </>
+                                                )}
+                                            </button>
+                                            <Link
+                                                to={`/vehicle/${vehicle.id}`}
+                                                className="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded shadow transition"
+                                            >
+                                                Подробнее
+                                            </Link>
+                                        </div>
+                                        {expandedVehicleId === vehicle.id.toString() && (
+                                            <div className="bg-gray-50 p-3 rounded border mt-2 text-sm">
+                                                {vehicle.description
+                                                    ? <p>{vehicle.description}</p>
+                                                    : <p className="text-gray-400">Описание недоступно</p>}
+                                            </div>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </main>
                 </div>
             </div>
         </div>
-
     );
 };
 

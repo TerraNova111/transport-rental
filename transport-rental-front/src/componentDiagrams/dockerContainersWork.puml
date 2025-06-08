@@ -1,0 +1,29 @@
+@startuml
+' Explicitly tell PlantUML that this is a component diagram
+!pragma diagramType component
+
+package "Docker Build Process" {
+
+  component "Node.js 18 Image" as node18_build
+  component "Nginx Alpine Image" as nginx_alpine
+
+  component "Maven 3.9.6 + Temurin 21" as maven_build
+  component "Temurin 21 JDK" as temurin_runtime
+
+  ' Frontend build and serve
+  node18_build --> "Frontend Build Stage" : npm install & build
+  "Frontend Build Stage" --> nginx_alpine : copy /app/dist
+
+  ' Backend build and run
+  maven_build --> "Backend Build Stage" : mvn clean package
+  "Backend Build Stage" --> temurin_runtime : copy app.jar
+
+}
+
+' Runtime dependencies
+component "PostgreSQL Database" as postgres
+
+nginx_alpine --> temurin_runtime : API calls
+temurin_runtime --> postgres : DB connection
+
+@enduml

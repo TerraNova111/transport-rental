@@ -4,7 +4,7 @@ import com.example.transportrental.security.JwtUtil;
 import com.example.transportrental.dto.auth.AuthRequestDTO;
 import com.example.transportrental.dto.auth.AuthResponseDTO;
 import com.example.transportrental.dto.auth.RegisterRequestDTO;
-import com.example.transportrental.model.Role;
+import com.example.transportrental.model.enums.Role;
 import com.example.transportrental.model.User;
 import com.example.transportrental.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,5 +40,17 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getUsername(), user.getRole());
         return new AuthResponseDTO(token);
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            String email = jwtUtil.extractEmail(token);
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            return jwtUtil.isTokenValid(token, user.getEmail());
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

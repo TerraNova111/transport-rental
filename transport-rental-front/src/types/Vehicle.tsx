@@ -5,5 +5,8 @@ export type Vehicle = {
     description: string;
     available: boolean;
     pricePerDay: number;
+    quantity: number;
     imageUrl: string;
+    descriptionDetailed?: Record<string, any>;
+    serviceCategory: string;
 };

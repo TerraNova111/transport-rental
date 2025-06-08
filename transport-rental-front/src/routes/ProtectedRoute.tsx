@@ -11,7 +11,7 @@ const ProtectedRoute = ({ children,role }: Props) => {
     const token = localStorage.getItem("token");
     const userRole = getRoleFromToken();
 
-    if(!token) return <Navigate to={"/login"}/>
+    if(!token) return <Navigate to={"/"}/>
     if (userRole && role !== role) {
         return <Navigate to={"/unauthorized"}/>
     }

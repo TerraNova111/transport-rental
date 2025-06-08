@@ -4,13 +4,16 @@ import com.example.transportrental.components.BookingMapper;
 import com.example.transportrental.dto.booking.BookingCreateDTO;
 import com.example.transportrental.dto.booking.BookingDTO;
 import com.example.transportrental.model.Booking;
-import com.example.transportrental.model.BookingStatus;
+import com.example.transportrental.model.enums.BookingStatus;
+import com.example.transportrental.model.User;
+import com.example.transportrental.repository.UserRepository;
 import com.example.transportrental.services.BookingService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -19,6 +22,7 @@ import java.util.List;
 public class BookingController {
     private final BookingService bookingService;
     private final BookingMapper bookingMapper;
+    private final UserRepository userRepository;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -35,8 +39,7 @@ public class BookingController {
     @PostMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public BookingDTO createBooking(@RequestBody BookingCreateDTO request) {
-        Booking booking = bookingService.createBooking(request);
-        return bookingMapper.toDto(booking);
+        return bookingService.createBooking(request);
     }
 
     @PutMapping("/{id}")
@@ -63,16 +66,23 @@ public class BookingController {
         return bookingService.getBookingByUser(userId);
     }
 
-    @PutMapping("/{id}/reject")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> rejectBooking(@PathVariable Long id) {
-        bookingService.updateBookingStatus(id, BookingStatus.CANCELED);
-        return ResponseEntity.ok().build();
+    @PostMapping("/rejected/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public BookingDTO cancelBooking(@PathVariable Long id) {
+        return bookingService.cancelBooking(id);
     }
 
     @PostMapping("/approved/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public BookingDTO approveBooking(@PathVariable Long id) {
         return bookingService.approveBooking(id);
+    }
+
+    @GetMapping("/my")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public List<BookingDTO> getMyBookings(Principal principal) {
+        String email = principal.getName();
+        User user = userRepository.findByEmail(email).orElseThrow();
+        return bookingService.getBookingByUser(user.getId());
     }
 }

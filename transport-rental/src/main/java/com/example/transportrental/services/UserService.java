@@ -1,7 +1,7 @@
 package com.example.transportrental.services;
 
 import com.example.transportrental.dto.user.*;
-import com.example.transportrental.model.Role;
+import com.example.transportrental.model.enums.Role;
 import com.example.transportrental.model.User;
 import com.example.transportrental.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -66,6 +66,7 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         user.setFullName(request.getFullName());
         user.setPhone(request.getPhone());
+        user.setAddress(request.getAddress());
         userRepository.save(user);
         return getProfile(email);
     }

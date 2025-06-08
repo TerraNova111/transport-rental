@@ -1,0 +1,13 @@
+@startuml
+actor User
+participant Frontend
+participant "Auth Service" as AuthService
+participant Database
+
+User -> Frontend: Enters username and password
+Frontend -> AuthService: POST /login with credentials
+AuthService -> Database: Verify user credentials
+Database --> AuthService: User data or error
+AuthService --> Frontend: JWT token or authentication error
+Frontend -> User: Stores token and redirects to main page
+@enduml

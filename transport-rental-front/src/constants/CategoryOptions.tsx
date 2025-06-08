@@ -1,0 +1,30 @@
+export const categoryOptions: Record<string, { value: string; label: string; image: string }[]> = {
+    RENTAL: [
+        {value: "Экскаватор", label: "Экскаватор", image: "/images/rental/экскаваторы.png" },
+        {value: "Погрузчик", label: "Погрузчик", image: "/images/rental/погрузчики.PNG" },
+        {value: "Бульдозер", label: "Бульдозер", image: "/images/rental/бульдозеры.PNG" },
+        {value: "Каток", label: "Каток", image: "/images/rental/катки.PNG" },
+        {value: "Автокран", label: "Автокран", image: "/images/rental/автокраны.PNG" },
+        {value: "Асфальтоукладчик", label: "Асфальтоукладчик", image: "/images/rental/асфальтоукладчики.PNG" },
+        {value: "Грейдер", label: "Грейдер", image: "/images/rental/грейдер.PNG" },
+        {value: "Буровая установка", label: "Буровая установка", image: "/images/rental/буровые установки.PNG" },
+        {value: "Манипулятор (КМУ)", label: "Манипуляторы (КМУ)", image: "/images/rental/манипуляторы.PNG" },
+        {value: "Автовышка", label: "Автовышка", image: "/images/rental/автовышки.PNG" },
+        {value: "Дорожный Фрезер", label: "Дорожный Фрезер", image: "/images/rental/дорожные фрезы.PNG" },
+        {value: "Компрессоры", label: "Компрессоры", image: "/images/rental/компрессоры.PNG" },
+        {value: "Мусоровозы", label: "Мусоровозы", image: "/images/rental/мусоровозы.PNG" },
+
+    ],
+    TRANSPORT: [
+        { value: "Самосвал", label: "Самосвал", image: "/images/transport/самосвалы.PNG" },
+        { value: "Бетоносмеситель", label: "Бетоносмеситель", image: "/images/transport/бетономеситель.PNG" },
+        { value: "Фургон", label: "Фургон", image: "/images/transport/фургон.PNG" },
+        { value: "Тягач", label: "Тягач", image: "/images/transport/тягач.PNG" },
+        { value: "Автобус", label: "Автобус", image: "/images/transport/автобус.PNG" },
+        { value: "Бортовой грузовик", label: "Бортовой грузовик", image: "/images/transport/бортовые грузовики.PNG" },
+        { value: "Лесовоз", label: "Лесовоз", image: "/images/transport/лесовозы.PNG" },
+        { value: "Панелевоз", label: "Панелевоз", image: "/images/transport/панелевозы.PNG" },
+        { value: "Эвакуаторы", label: "Эвакуаторы", image: "/images/transport/эвакуаторы.PNG" },
+        { value: "Траллы", label: "Траллы", image: "/images/transport/траллы.PNG" },
+    ],
+}

@@ -1,6 +1,6 @@
 package com.example.transportrental.security;
 
-import com.example.transportrental.model.Role;
+import com.example.transportrental.model.enums.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

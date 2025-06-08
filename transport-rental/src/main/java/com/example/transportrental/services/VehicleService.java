@@ -2,6 +2,7 @@ package com.example.transportrental.services;
 
 import com.example.transportrental.dto.vehicle.VehicleDTO;
 import com.example.transportrental.model.Vehicle;
+import com.example.transportrental.model.enums.ServiceCategory;
 import com.example.transportrental.repository.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,9 +32,20 @@ public class VehicleService {
         return vehicleRepository.findById(id).map(this::mapToDto);
     }
 
-    public List<VehicleDTO> getAvailableVehicles() {
-        return vehicleRepository.findByAvailableTrue()
-                .stream()
+    public List<VehicleDTO> getAvailableVehicles(String category, ServiceCategory serviceCategory) {
+        List<Vehicle> vehicles;
+
+        if (category != null && serviceCategory != null) {
+            vehicles = vehicleRepository.findByAvailableTrueAndCategoryAndServiceCategory(category, serviceCategory);
+        } else if (category != null) {
+            vehicles = vehicleRepository.findByAvailableTrueAndCategory(category);
+        } else if (serviceCategory != null) {
+            vehicles = vehicleRepository.findByAvailableTrueAndServiceCategory(serviceCategory);
+        } else {
+            vehicles = vehicleRepository.findByAvailableTrue();
+        }
+
+        return vehicles.stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
@@ -54,6 +66,10 @@ public class VehicleService {
         vehicleRepository.deleteById(id);
     }
 
+    public List<String> getAllCategories() {
+        return vehicleRepository.findDistinctCategories();
+    }
+
     public void createVehicleWithImage(VehicleDTO dto, MultipartFile imageFile) {
         try {
             String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
@@ -66,13 +82,43 @@ public class VehicleService {
             vehicle.setName(dto.getName());
             vehicle.setCategory(dto.getCategory());
             vehicle.setDescription(dto.getDescription());
+            vehicle.setQuantity(dto.getQuantity());
             vehicle.setAvailable(dto.isAvailable());
             vehicle.setPricePerDay(dto.getPricePerDay());
             vehicle.setImageUrl(fileName);
+            vehicle.setServiceCategory(dto.getServiceCategory());
 
             vehicleRepository.save(vehicle);
         } catch (IOException e) {
             throw new RuntimeException("Ошибка при сохранении изображени", e);
+        }
+    }
+
+    public void updateVehicleImage(Long vehicleId, MultipartFile imageFile) {
+        try {
+            // Проверяем, существует ли техника с таким id
+            Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                    .orElseThrow(() -> new RuntimeException("Техника с ID " + vehicleId + " не найдена"));
+
+            // Удаляем старое изображение (по желанию)
+            if (vehicle.getImageUrl() != null) {
+                Path oldFilePath = Paths.get("uploads").resolve(vehicle.getImageUrl());
+                Files.deleteIfExists(oldFilePath);
+            }
+
+            // Загружаем новое изображение
+            String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
+            Path uploadDir = Paths.get("uploads");
+            Files.createDirectories(uploadDir);
+            Path filePath = uploadDir.resolve(fileName);
+            Files.write(filePath, imageFile.getBytes());
+
+            // Обновляем технику
+            vehicle.setImageUrl(fileName);
+            vehicleRepository.save(vehicle);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Ошибка при обновлении изображения", e);
         }
     }
 
@@ -83,8 +129,11 @@ public class VehicleService {
         vehicle.setName(dto.getName());
         vehicle.setCategory(dto.getCategory());
         vehicle.setDescription(dto.getDescription());
-        vehicle.setAvailable(dto.isAvailable());
+        vehicle.setDescriptionDetailed(dto.getDescriptionDetailed());
         vehicle.setPricePerDay(dto.getPricePerDay());
+        vehicle.setQuantity(dto.getQuantity());
+        vehicle.setServiceCategory(dto.getServiceCategory());
+        vehicle.setDescriptionDetailed(dto.getDescriptionDetailed());
 
         vehicleRepository.save(vehicle);
     }
@@ -96,8 +145,16 @@ public class VehicleService {
         dto.setCategory(vehicle.getCategory());
         dto.setDescription(vehicle.getDescription());
         dto.setAvailable(vehicle.isAvailable());
+        dto.setQuantity(vehicle.getQuantity());
         dto.setPricePerDay(vehicle.getPricePerDay());
         dto.setImageUrl(vehicle.getImageUrl());
+        dto.setServiceCategory(vehicle.getServiceCategory());
+        dto.setDescriptionDetailed(vehicle.getDescriptionDetailed());
+
         return dto;
+    }
+
+    public List<String> getCategoriesByServiceCategory(ServiceCategory serviceCategory) {
+        return vehicleRepository.findDistinctCategoriesByServiceCategory(serviceCategory);
     }
 }

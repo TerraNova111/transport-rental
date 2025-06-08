@@ -1,6 +1,6 @@
 package com.example.transportrental.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.example.transportrental.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;

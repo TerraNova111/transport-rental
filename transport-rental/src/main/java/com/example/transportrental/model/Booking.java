@@ -1,6 +1,6 @@
 package com.example.transportrental.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.example.transportrental.model.enums.BookingStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

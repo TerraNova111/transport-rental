@@ -10,6 +10,7 @@ type AuthContextType = {
     user: User | null
     login: (token: string) => void
     logout: () => void
+    isAuthValidated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -20,18 +21,39 @@ type AuthProviderProps = {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
     const [user, setUser] = useState<User | null>(null)
+    const [isAuthValidated, setIsAuthValidated] = useState(false);
 
     useEffect(() => {
-        const token = localStorage.getItem('token')
+        const token = localStorage.getItem('token');
         if (token) {
-            const payload = JSON.parse(atob(token.split('.')[1]))
+            const payload = JSON.parse(atob(token.split('.')[1]));
             setUser({
                 username: payload.username,
                 email: payload.sub,
                 role: payload.role,
             });
+
+            fetch('/api/auth/validate', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        logout();
+                    }
+                })
+                .catch(() => {
+                    logout();
+                })
+                .finally(() => {
+                    setIsAuthValidated(true);
+                });
+        } else {
+            setIsAuthValidated(true);
         }
-    }, [])
+    }, []);
+
 
     const login = (token: string) => {
         localStorage.setItem('token', token)
@@ -41,6 +63,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             email: payload.sub,
             role: payload.role,
         });
+        setIsAuthValidated(true);
     }
 
     const logout = () => {
@@ -49,7 +72,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout, isAuthValidated  }}>
             {children}
         </AuthContext.Provider>
     )

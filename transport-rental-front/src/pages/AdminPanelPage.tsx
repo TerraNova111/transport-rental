@@ -1,132 +1,66 @@
-import React, { useEffect, useState } from "react";
-import { Vehicle } from "../types/Vehicle";
-import { addVehicle, deleteVehicle } from "../api/adminApi";
-import axios from "../utils/axios";
+import React, { useState } from "react";
+import EditProfileForm from "../components/profile/EditProfileForm";
+import ChangePasswordForm from "../components/profile/ChangePasswordForm";
+import VehicleAddPanel from "../components/profile/adminProfile/VehicleAddPanel";
+import VehicleList from "../components/profile/adminProfile/VehicleList";
+import defaultAvatar from "../assets/avatar.png";
+import {Pencil} from "lucide-react";
+import AllBookingHistoryList from "../components/profile/adminProfile/AllBookingHistoryList";
+
 
 const AdminPanelPage: React.FC = () => {
-    const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-    const [formData, setFormData] = useState({
-        name: "",
-        category: "",
-        description: "",
-        pricePerDay: "",
-        available: true,
-    });
-    const [image, setImage] = useState<File | null>(null);
-
-    useEffect(() => {
-        axios
-            .get("http://localhost:8080/api/admin/vehicles")
-            .then((res) => {
-                console.log("Полученные данные:", res.data);
-                setVehicles(res.data);
-            })
-            .catch((err) => console.error(err));
-    }, []);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!image) return;
-
-        const data = new FormData();
-        data.append("vehicle", new Blob([JSON.stringify(formData)], { type: "application/json" }));
-        data.append("image", image);
-
-        try {
-            await addVehicle(data);
-            alert("Техника добавлена!");
-            window.location.reload();
-        } catch (err) {
-            console.error(err);
-            alert("Ошибка при добавлении");
-        }
-    };
-
-    const handleDelete = async (id: number) => {
-        try {
-            await deleteVehicle(id);
-            setVehicles(vehicles.filter((v) => v.id !== id));
-        } catch (err) {
-            console.error(err);
-            alert("Ошибка при удалении");
-        }
-    };
+    const [tab, setTab] = useState<"profile" | "password" | "history" | "add_vehicle" | "vehicle_list">("profile");
 
     return (
-        <div className="admin-panel min-h-screen max-w-4xl mx-auto p-4">
+        <div className="admin-panel min-h-screen max-w-7xl mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Админ-панель</h1>
-
-            <form onSubmit={handleSubmit} className="space-y-4 mb-6">
-                <input
-                    type="text"
-                    placeholder="Название"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full border p-2 rounded"
-                    required
+            <div className="avatar-bg w-full h-64 rounded-2xl shadow-lg relative flex justify-center items-end">
+                <img
+                    src={defaultAvatar}
+                    alt="User Avatar"
+                    className="w-40 h-40 rounded-full border-4 border-white shadow-xl absolute bottom-4 left-4"
                 />
-                <input
-                    type="text"
-                    placeholder="Категория"
-                    value={formData.category}
-                    onChange={(e) => setFormData({...formData, category: e.target.value})}
-                    className="w-full border p-2 rounded"
-                    required
-                />
-                <textarea
-                    placeholder="Описание"
-                    value={formData.description}
-                    onChange={(e) => setFormData({...formData, description: e.target.value})}
-                    className="w-full border p-2 rounded"
-                />
-                <input
-                    type="number"
-                    placeholder="Цена за день"
-                    value={formData.pricePerDay}
-                    onChange={(e) => setFormData({...formData, pricePerDay: e.target.value})}
-                    className="w-full border p-2 rounded"
-                    required
-                />
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setImage(e.target.files?.[0] || null)}
-                    required
-                />
-                {image && (
-                    <img
-                        src={URL.createObjectURL(image)}
-                        alt="Превью"
-                        className="w-32 h-32 object-cover border rounded"
-                    />
-                )}
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-                    Добавить технику
-                </button>
-            </form>
-
-            <h2 className="text-xl font-semibold mb-2">Список техники</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {vehicles.map(vehicle => (
-                    <div key={vehicle.id} className="border rounded p-4 shadow-sm">
-                        <img
-                            src={`http://localhost:8080/uploads/${vehicle.imageUrl}`}
-                            alt={vehicle.name}
-                            className="w-full h-40 object-cover rounded mb-2"
-                        />
-                        <h2 className="text-xl font-semibold">{vehicle.name}</h2>
-                        <p className="text-gray-600">{vehicle.category}</p>
-                        <p className="text-sm text-gray-500">{vehicle.description}</p>
-                        <p className="mt-2 font-bold">{vehicle.pricePerDay}₽ / день</p>
-                        <button
-                            onClick={() => handleDelete(vehicle.id)}
-                            className="bg-red-500 text-white px-3 py-1 rounded"
-                        >
-                            Удалить
-                        </button>
-                    </div>
-                ))}
+                <div className="edit-avatar text-black cursor-pointer">
+                    <Pencil className="w-4 h-4"/>
+                </div>
             </div>
+            <div className="mt-20 bg-white">
+                <div className="flex flex-wrap">
+                    {[
+                        {key: 'profile', label: 'Настройки аккаунта'},
+                        {key: 'password', label: 'Изменить пароль'},
+                        {key: 'history', label: 'Список бронирований'},
+                        {key: 'add_vehicle', label: 'Добавить технику'},
+                        {key: 'vehicle_list', label: 'Список техники'},
+                    ].map(({key, label}) => (
+                        <button
+                            key={key}
+                            onClick={() => setTab(key as typeof tab)}
+                            className={`flex-1 px-4 py-4 text-center font-semibold transition-all duration-300 border-b-4 
+                             ${
+                                tab === key
+                                    ? "border-blue-600 text-blue-600 bg-white"
+                                    : "text-gray-600 hover:text-blue-600"
+                            }`}
+                        >
+                            {label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+
+
+            {/* Контент вкладок */}
+            <div
+                className="bg-white p-8 shadow-lg border border-gray-200 mb-10 transition-all duration-300">
+                {tab === "profile" && <EditProfileForm/>}
+                {tab === "password" && <ChangePasswordForm/>}
+                {tab === "history" && <AllBookingHistoryList/>}
+                {tab === "add_vehicle" && <VehicleAddPanel/>}
+                {tab === "vehicle_list" && <VehicleList/>}
+            </div>
+
         </div>
     );
 };

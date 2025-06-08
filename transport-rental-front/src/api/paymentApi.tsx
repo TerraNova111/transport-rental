@@ -12,4 +12,4 @@ export const createPaymentSession = async (
         amount,
     });
     return res.data;
-};gi
+};

@@ -3,8 +3,9 @@ package com.example.transportrental.services;
 import com.example.transportrental.components.BookingMapper;
 import com.example.transportrental.dto.booking.BookingCreateDTO;
 import com.example.transportrental.dto.booking.BookingDTO;
+import com.example.transportrental.exceptions.VehicleUnavailableException;
 import com.example.transportrental.model.Booking;
-import com.example.transportrental.model.BookingStatus;
+import com.example.transportrental.model.enums.BookingStatus;
 import com.example.transportrental.model.User;
 import com.example.transportrental.model.Vehicle;
 import com.example.transportrental.repository.BookingRepository;
@@ -13,10 +14,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -46,10 +45,15 @@ public class BookingService {
         return bookingMapper.toDto(booking);
     }
 
-    public Booking createBooking(BookingCreateDTO request) {
+    public BookingDTO createBooking(BookingCreateDTO request) {
         User user = userService.getCurrentUser();
         Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
                 .orElseThrow(() -> new RuntimeException("Техника не найдена"));
+
+        boolean available = isVehicleAvailable(vehicle.getId(), request.getStartDate(), request.getEndDate());
+        if (!available) {
+            throw new VehicleUnavailableException("Техника недоступна на выбранные даты");
+        }
 
         Booking booking = new Booking();
         booking.setUser(user);
@@ -58,7 +62,8 @@ public class BookingService {
         booking.setEndDate(request.getEndDate());
         booking.setStatus(BookingStatus.PENDING);
 
-        return bookingRepository.save(booking);
+        Booking savedBooking = bookingRepository.save(booking);
+        return bookingMapper.toDto(savedBooking);
     }
 
     public BookingDTO updateBooking(Long id, BookingDTO request) {
@@ -93,6 +98,10 @@ public class BookingService {
         return updateBookingStatus(id, BookingStatus.APPROVED);
     }
 
+    public BookingDTO cancelBooking(Long id) {
+        return updateBookingStatus(id, BookingStatus.CANCELED);
+    }
+
     @Transactional
     public void markAsPaid(Long id) {
         Booking booking = bookingRepository.findById(id)
@@ -100,4 +109,17 @@ public class BookingService {
         booking.setStatus(BookingStatus.PAID);
         bookingRepository.save(booking);
     }
+
+    public boolean isVehicleAvailable(Long vehicleId, LocalDate startDate, LocalDate endDate) {
+        int totalQuantity = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new RuntimeException("Техника не найдена"))
+                .getQuantity();
+
+        List<BookingStatus> statuses = List.of(BookingStatus.PENDING, BookingStatus.APPROVED, BookingStatus.PAID);
+
+        int bookedCount = bookingRepository.countActiveBookings(vehicleId, startDate, endDate, statuses);
+
+        return bookedCount < totalQuantity;
+    }
+
 }
