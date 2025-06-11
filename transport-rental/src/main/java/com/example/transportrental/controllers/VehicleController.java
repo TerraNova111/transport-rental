@@ -4,9 +4,11 @@ import com.example.transportrental.dto.vehicle.VehicleDTO;
 import com.example.transportrental.model.enums.ServiceCategory;
 import com.example.transportrental.services.VehicleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -58,5 +60,23 @@ public class VehicleController {
                 .map(Enum::name)
                 .toList();
         return ResponseEntity.ok(serviceCategories);
+    }
+
+    @GetMapping("/{id}/availability")
+    public boolean isVehicleAvailable(
+            @PathVariable Long id,
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        return vehicleService.isVehicleAvailable(id, startDate, endDate);
+    }
+
+    @GetMapping("/{id}/available-quantity")
+    public int getAvailableQuantity(
+            @PathVariable Long id,
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        return vehicleService.getAvailableQuantity(id, startDate, endDate);
     }
 }

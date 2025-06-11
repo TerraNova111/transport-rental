@@ -30,8 +30,8 @@ public class StripeService {
 
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("http://localhost:5173/payment-success")
-                .setCancelUrl("http://localhost:5173/payment-cancel")
+                .setSuccessUrl("http://localhost:5173/payment-success?bookingId=" + bookingId)
+                .setCancelUrl("http://localhost:5173/payment-cancel?bookingId=" + bookingId)
                 .addLineItem(
                         SessionCreateParams.LineItem.builder()
                                 .setQuantity(1L)

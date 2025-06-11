@@ -15,6 +15,7 @@ const VehiclePage: React.FC = () => {
     const [vehicle, setVehicle] = useState<Vehicle | null>(null);
     const [isModalOpen, setModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [availableCount, setAvailableCount] = useState<number | null>(null);
 
     useEffect(() => {
         axios.get(`/api/vehicles/${id}`)
@@ -22,30 +23,58 @@ const VehiclePage: React.FC = () => {
             .catch((err) => console.error(err));
     }, [id]);
 
+    useEffect(() => {
+        if (vehicle) {
+            fetchAvailability();
+        }
+    }, [vehicle]);
+
+    const fetchAvailability = async () => {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const res = await axios.get(`/api/vehicles/${id}/available-quantity`, {
+                params: {
+                    startDate: today,
+                    endDate: today
+                }
+            });
+            setAvailableCount(res.data); // тут исправление
+            console.log(res.data);
+        } catch (error) {
+            console.error("Ошибка при получении доступности техники:", error);
+        }
+    };
+
     if (!vehicle) return <div className="p-4">Загрузка...</div>;
 
-    const handleBooking = async (startDate: string, endDate: string) => {
-        if (!startDate || !endDate) {
-            alert("Выберите даты");
-            return;
-        }
-
+    const handleBooking = async (
+        startDate: string,
+        endDate: string,
+        deliveryAddress?: { latitude: number; longitude: number } | null,
+        loadingAddress?: { latitude: number; longitude: number } | null,
+        unloadingAddress?: { latitude: number; longitude: number } | null
+    ) => {
         try {
             setLoading(true);
 
-            const booking = await createBooking(id!, startDate, endDate);
+            const booking = await createBooking(
+                id!,
+                startDate,
+                endDate,
+                vehicle!.serviceCategory,
+                deliveryAddress,
+                loadingAddress,
+                unloadingAddress
+            );
 
-
-            if (!booking) {
-                return;
-            }
+            if (!booking) return;
 
             const start = new Date(startDate);
             const end = new Date(endDate);
             const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) || 1;
             const amount = days * vehicle!.pricePerDay;
 
-            const {url} = await createPaymentSession(booking.id, vehicle!.name, amount)
+            const { url } = await createPaymentSession(booking.id, vehicle!.name, amount);
 
             window.location.href = url;
         } catch (err: any) {
@@ -98,10 +127,8 @@ const VehiclePage: React.FC = () => {
                                 {Object.entries(vehicle.descriptionDetailed)
                                     .filter(([key]) => key !== "description")
                                     .map(([key, value]) => {
-                                        // 1️⃣ Поиск сначала в commonFields
                                         let field = commonFields.find(f => f.key === key);
 
-                                        // 2️⃣ Если не нашли в commonFields, ищем в специфических
                                         if (!field) {
                                             if (vehicle.serviceCategory === "RENTAL" && vehicle.category) {
                                                 field = specificFieldsRental[vehicle.category]?.find(f => f.key === key);
@@ -111,7 +138,6 @@ const VehiclePage: React.FC = () => {
                                             }
                                         }
 
-                                        // 3️⃣ Выбираем label или дефолтное значение
                                         const label = field ? field.label : key;
 
                                         return (
@@ -133,17 +159,13 @@ const VehiclePage: React.FC = () => {
                     <p className="text-2xl font-bold text-green-600">
                         {vehicle.pricePerDay}₸ <span className="text-sm text-gray-500 font-normal">/ день</span>
                     </p>
-                    <button
-                        className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md transition duration-200 ${
-                            !vehicle.available ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                        onClick={() => {
-                            if (vehicle.available) setModalOpen(true);
-                        }}
-                        disabled={!vehicle.available}
-                    >
-                        Забронировать
-                    </button>
+                    <div className="text-lg font-semibold text-gray-800">
+                        {availableCount !== null ? (
+                            <span>Доступное количество: {availableCount}</span>
+                        ) : (
+                            <span>Загрузка...{availableCount}</span>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -151,6 +173,7 @@ const VehiclePage: React.FC = () => {
                 isOpen={isModalOpen}
                 onClose={() => setModalOpen(false)}
                 onSubmit={handleBooking}
+                serviceCategory={vehicle.serviceCategory}
             />
         </div>
     );

@@ -42,11 +42,9 @@ const VehicleEditForm: React.FC<VehicleEditFormProps> = ({ vehicle, onCancel, on
                 descriptionDetailed: descriptionDetailed
             };
             await updateVehicle(updatedVehicle.id!, updatedVehicle);
-            console.log("обновил вехикл");
             if (image) {
                 await updateVehicleImage(updatedVehicle.id!, image);
                 console.log("не обновил картинку");
-
             }
 
             onSave();

@@ -1,7 +1,6 @@
 package com.example.transportrental.model;
 
 import com.example.transportrental.model.enums.ServiceCategory;
-import com.example.transportrental.model.enums.WorkCategory;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -40,6 +39,12 @@ public class Vehicle {
 
     @Column(nullable = false)
     private BigDecimal pricePerDay;
+
+    @Column(name = "transport_price_per_km", nullable = true)
+    private BigDecimal transportPricePerKm;
+
+    @Column(name = "transport_base_fee", nullable = true)
+    private BigDecimal transportBaseFee;
 
     @Column(nullable = false)
     private boolean available;

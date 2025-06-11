@@ -1,6 +1,7 @@
 package com.example.transportrental.model;
 
 import com.example.transportrental.model.enums.BookingStatus;
+import com.example.transportrental.model.enums.ServiceCategory;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,13 +27,29 @@ public class Booking {
     @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDate startDate;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ServiceCategory serviceCategory;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_address_id")
+    private Address deliveryAddress;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loading_address_id")
+    private Address loadingAddress;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unloading_address_id")
+    private Address unloadingAddress;
 }

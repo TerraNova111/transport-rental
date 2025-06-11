@@ -8,8 +8,9 @@ import AdminPanelPage from "./pages/AdminPanelPage.tsx";
 import ProtectedRoute from "./routes/ProtectedRoute.js";
 import CatalogPage from "./pages/CatalogPage.tsx";
 import VehiclePage from "./pages/VehiclePage.js";
-import PaymentSuccessPage from "./pages/PaymentSuccessPage.js";
+import PaymentSuccessPage from "./pages/payment/PaymentSuccessPage.tsx";
 import CatalogHomePage from "./pages/CatalogHomePage.js";
+import PaymentCancel from "./pages/payment/PaymentCancel.js";
 
 
 export default function App() {
@@ -45,6 +46,13 @@ export default function App() {
                                        <PaymentSuccessPage />
                                    </ProtectedRoute>
                             }
+                        />
+                        <Route path="/payment-cancel"
+                               element={
+                                   <ProtectedRoute>
+                                       <PaymentCancel />
+                                   </ProtectedRoute>
+                               }
                         />
                     </Routes>
                 </main>

@@ -22,9 +22,13 @@ interface Booking {
     user: User;
 }
 
+const PAGE_SIZE = 8;
+
 const AllBookingHistoryList: React.FC = () => {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         axios.get("/api/bookings")
@@ -53,11 +57,18 @@ const AllBookingHistoryList: React.FC = () => {
 
     if (loading) return <p>Загрузка...</p>;
 
+    const totalPages = Math.ceil(bookings.length / PAGE_SIZE);
+
+    const bookingsToShow = bookings.slice(
+        (currentPage - 1) * PAGE_SIZE,
+        currentPage * PAGE_SIZE
+    );
+
     return (
         <div className="bg-white pt-10 rounded-xl">
             <h2 className="text-xl font-semibold mb-4">Список бронирований</h2>
-            <ul className="space-y-2">
-                {bookings.map(b => (
+            <ul className="space-y-2 min-h-[800px]">
+                {bookingsToShow.map(b => (
                     <li key={b.id} className="border-b py-2 text-sm">
                         <div className="flex justify-between items-center">
                             <div>
@@ -72,8 +83,8 @@ const AllBookingHistoryList: React.FC = () => {
                                 disabled={b.status === "APPROVED"}
                                 className={`rounded transition px-3 py-1 ${styles.button}
                                 ${b.status === "APPROVED"
-                                        ? "bg-gray-100 text-black-200 cursor-not-allowed"
-                                        : "bg-green-400 text-gray-700 hover:bg-green-500"
+                                    ? "bg-gray-100 text-black-200 cursor-not-allowed"
+                                    : "bg-green-400 text-gray-700 hover:bg-green-500"
                                 }`}
 
                             >
@@ -89,6 +100,36 @@ const AllBookingHistoryList: React.FC = () => {
                     </li>
                 ))}
             </ul>
+
+            <div className="flex justify-center mt-4 space-x-2">
+                <button
+                    onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 border rounded disabled:opacity-50"
+                >
+                    Назад
+                </button>
+
+                {Array.from({length: totalPages}, (_, i) => (
+                    <button
+                        key={i + 1}
+                        onClick={() => setCurrentPage(i + 1)}
+                        className={`px-3 py-1 border rounded ${
+                            currentPage === i + 1 ? "bg-blue-500 text-white" : ""
+                        }`}
+                    >
+                        {i + 1}
+                    </button>
+                ))}
+
+                <button
+                    onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 border rounded disabled:opacity-50"
+                >
+                    Вперед
+                </button>
+            </div>
         </div>
     );
 };

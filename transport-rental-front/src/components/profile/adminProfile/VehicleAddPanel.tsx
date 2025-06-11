@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { addVehicle } from "../../../api/adminApi";
 import styles from "../../../styles/buttons/AddVehicleFormButton.module.css";
-
 
 const serviceCategories = [
     { value: "RENTAL", label: "Аренда спецтехники" },
@@ -13,6 +12,12 @@ import { commonFields } from "../../../constants/CommonFields";
 
 
 const VehicleAddPanel: React.FC = () => {
+    const [descriptionDetailed, setDescriptionDetailed] = useState<{ [key: string]: any }>({});
+    const [image, setImage] = useState<File | null>(null);
+
+    const handleDescriptionChange = (key: string, value: any) => {
+        setDescriptionDetailed((prev) => ({ ...prev, [key]: value }));
+    };
 
     const [formData, setFormData] = useState({
         name: "",
@@ -22,18 +27,24 @@ const VehicleAddPanel: React.FC = () => {
         available: true,
         quantity: 1,
         serviceCategory: "",
-        descriptionDetailed: "",
     });
 
-    const [image, setImage] = useState<File | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!image) return;
 
+        const dataToSend = {
+            ...formData,
+            descriptionDetailed: descriptionDetailed
+        };
+
+        console.log(dataToSend);
+
         const data = new FormData();
-        data.append("vehicle", new Blob([JSON.stringify(formData)], { type: "application/json" }));
+        data.append("vehicle", new Blob([JSON.stringify(dataToSend)], { type: "application/json" }));
         data.append("image", image);
+        console.log(data);
 
         try {
             await addVehicle(data);
@@ -135,22 +146,22 @@ const VehicleAddPanel: React.FC = () => {
                     <div className="mb-4" key={field.key}>
                         <label className="block text-sm font-medium text-gray-700 mb-1">{field.label}</label>
                         <textarea
-                            value={formData.descriptionDetailed}
-                            onChange={(e) => setFormData({...formData, descriptionDetailed: e.target.value})}
+                            value={descriptionDetailed[field.key] || ""}
+                            onChange={(e) => handleDescriptionChange(field.key, e.target.value)}
                             className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2
                             focus:ring-blue-500 transition min-h-[200px]"
                         />
                     </div>
             ))}
-            
+
             {commonFields.filter((field)=> field.key != "description")
                 .map((field) => (
                     <div className="mb-4" key={field.key}>
                         <label className="block text-sm font-medium text-gray-700 mb-1">{field.label}</label>
                         <input
                             type={field.type}
-                            value={formData.descriptionDetailed}
-                            onChange={(e) => setFormData({...formData, descriptionDetailed: e.target.value})}
+                            value={descriptionDetailed[field.key] || ""}
+                            onChange={(e) => handleDescriptionChange(field.key, e.target.value)}
                             className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2
                            focus:ring-blue-500 transition"
                         />

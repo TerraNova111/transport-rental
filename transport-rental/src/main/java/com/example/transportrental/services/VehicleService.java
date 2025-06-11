@@ -2,7 +2,9 @@ package com.example.transportrental.services;
 
 import com.example.transportrental.dto.vehicle.VehicleDTO;
 import com.example.transportrental.model.Vehicle;
+import com.example.transportrental.model.enums.BookingStatus;
 import com.example.transportrental.model.enums.ServiceCategory;
+import com.example.transportrental.repository.BookingRepository;
 import com.example.transportrental.repository.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,6 +24,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class VehicleService {
     private final VehicleRepository vehicleRepository;
+    private final BookingRepository bookingRepository;
 
     public List<VehicleDTO> getAllVehicles() {
         return vehicleRepository.findAll().stream()
@@ -87,6 +91,7 @@ public class VehicleService {
             vehicle.setPricePerDay(dto.getPricePerDay());
             vehicle.setImageUrl(fileName);
             vehicle.setServiceCategory(dto.getServiceCategory());
+            vehicle.setDescriptionDetailed(dto.getDescriptionDetailed());
 
             vehicleRepository.save(vehicle);
         } catch (IOException e) {
@@ -96,24 +101,20 @@ public class VehicleService {
 
     public void updateVehicleImage(Long vehicleId, MultipartFile imageFile) {
         try {
-            // Проверяем, существует ли техника с таким id
             Vehicle vehicle = vehicleRepository.findById(vehicleId)
                     .orElseThrow(() -> new RuntimeException("Техника с ID " + vehicleId + " не найдена"));
 
-            // Удаляем старое изображение (по желанию)
             if (vehicle.getImageUrl() != null) {
                 Path oldFilePath = Paths.get("uploads").resolve(vehicle.getImageUrl());
                 Files.deleteIfExists(oldFilePath);
             }
 
-            // Загружаем новое изображение
             String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
             Path uploadDir = Paths.get("uploads");
             Files.createDirectories(uploadDir);
             Path filePath = uploadDir.resolve(fileName);
             Files.write(filePath, imageFile.getBytes());
 
-            // Обновляем технику
             vehicle.setImageUrl(fileName);
             vehicleRepository.save(vehicle);
 
@@ -156,5 +157,29 @@ public class VehicleService {
 
     public List<String> getCategoriesByServiceCategory(ServiceCategory serviceCategory) {
         return vehicleRepository.findDistinctCategoriesByServiceCategory(serviceCategory);
+    }
+
+    public boolean isVehicleAvailable(Long vehicleId, LocalDate startDate, LocalDate endDate) {
+        int totalQuantity = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new RuntimeException("Техника не найдена"))
+                .getQuantity();
+
+        List<BookingStatus> statuses = List.of(BookingStatus.PENDING, BookingStatus.APPROVED, BookingStatus.PAID);
+
+        int bookedCount = bookingRepository.countActiveBookings(vehicleId, startDate, endDate, statuses);
+
+        return bookedCount < totalQuantity;
+    }
+
+    public int getAvailableQuantity(Long vehicleId, LocalDate startDate, LocalDate endDate) {
+        int totalQuantity = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new RuntimeException("Техника не найдена"))
+                .getQuantity();
+
+        List<BookingStatus> statuses = List.of(BookingStatus.PENDING, BookingStatus.APPROVED, BookingStatus.PAID);
+
+        int bookedCount = bookingRepository.countActiveBookings(vehicleId, startDate, endDate, statuses);
+
+        return totalQuantity - bookedCount;
     }
 }

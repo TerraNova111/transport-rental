@@ -1,8 +1,10 @@
 package com.example.transportrental.components;
 
+import com.example.transportrental.dto.address.AddressDTO;
 import com.example.transportrental.dto.booking.BookingDTO;
 import com.example.transportrental.dto.booking.UserSummaryDTO;
 import com.example.transportrental.dto.booking.VehicleSummaryDTO;
+import com.example.transportrental.model.Address;
 import com.example.transportrental.model.Booking;
 import com.example.transportrental.model.User;
 import com.example.transportrental.model.Vehicle;
@@ -31,6 +33,20 @@ public class BookingMapper {
         vehicleDto.setName(vehicle.getName());
         dto.setVehicle(vehicleDto);
 
+        AddressMapper addressMapper = new AddressMapper();
+
+        if (booking.getDeliveryAddress() != null) {
+            dto.setDeliveryAddress(addressMapper.toAddressDto(booking.getDeliveryAddress()));
+        }
+        if (booking.getLoadingAddress() != null) {
+            dto.setLoadingAddress(addressMapper.toAddressDto(booking.getLoadingAddress()));
+        }
+        if (booking.getUnloadingAddress() != null) {
+            dto.setUnloadingAddress(addressMapper.toAddressDto(booking.getUnloadingAddress()));
+        }
+
         return dto;
     }
+
+
 }
