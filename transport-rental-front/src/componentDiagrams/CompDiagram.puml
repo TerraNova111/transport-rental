@@ -1,0 +1,53 @@
+@startuml
+skinparam componentStyle rectangle
+
+package "Frontend (React)" {
+  [BookingForm]
+  [createAddress API Client]
+  [createBooking API Client]
+}
+
+package "Backend (Spring Boot)" {
+  [BookingController]
+  [BookingService]
+  [AddressController]
+  [AddressService]
+  [UserService]
+  [VehicleService]
+  [AddressRepository]
+  [BookingRepository]
+  [AddressMapper]
+  [PriceCalculator]
+  [StripeService]
+}
+
+database "PostgreSQL" as DB
+
+' --- Frontend flow ---
+[BookingForm] --> [createAddress API Client] : POST /api/addresses
+[createAddress API Client] --> [AddressController]
+[AddressController] --> [AddressService]
+[AddressService] --> [UserService] : getCurrentUser()
+[AddressService] --> [AddressRepository] : save(address)
+[AddressService] --> [AddressMapper] : toAddressDto()
+[AddressRepository] --> DB
+
+[BookingForm] --> [createBooking API Client] : POST /api/bookings
+[createBooking API Client] --> [BookingController]
+[BookingController] --> [BookingService]
+
+' --- Booking backend ---
+[BookingService] --> [UserService]
+[BookingService] --> [VehicleService]
+[BookingService] --> [AddressRepository] : findById()
+[BookingService] --> [PriceCalculator] : calculate (TRANSPORT)
+[BookingService] --> [BookingRepository] : save(booking)
+
+[BookingRepository] --> DB
+[VehicleService] --> DB
+[UserService] --> DB
+
+[BookingForm] --> [StripeService] : POST /api/payments
+[StripeService] --> [Stripe API]
+
+@enduml

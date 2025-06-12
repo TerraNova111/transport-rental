@@ -2,12 +2,12 @@ import React from "react";
 
 import homeBg from "../assets/home-intro.png";
 import aboutBg from "../assets/about.png";
-import achievmentBg from "../assets/achievments-bg.png";
+import achBg from "../assets/ach-bg.png";
 import historyBg from "../assets/history-bg.png";
 import proudBg from "../assets/proud.png";
 
 
-import iconTenge from "../assets/icons/tenge-icon.png";
+import iconTenge from "../assets/icons/tg-icon.png";
 import iconAuto from "../assets/icons/auto-icon.png";
 import iconHistory from "../assets/icons/history-icon.png";
 
@@ -109,7 +109,7 @@ const HomePage: React.FC = () => {
                 {/* Картинка на всю ширину */}
                 <section>
                     <img
-                        src={achievmentBg}
+                        src={achBg}
                         alt="Техника в работе"
                         className="w-full/2 object-cover h-96 md:h-96 m-auto my-24"
                     />

@@ -87,7 +87,6 @@ const SelectAddressMap: React.FC<SelectAddressMapProps> = ({ onSelect }) => {
         });
     }, []);
 
-    // Обработчик клика по карте
     const onMapClick = useCallback(async (event: google.maps.MapMouseEvent) => {
         if (event.latLng) {
             const lat = event.latLng.lat();

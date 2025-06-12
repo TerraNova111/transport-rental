@@ -34,6 +34,7 @@ entity Booking {
   delivery_address_id : Long <<FK>> [nullable]
   loading_address_id : Long <<FK>> [nullable]
   unloading_address_id : Long <<FK>> [nullable]
+  price : String
 }
 
 entity Payment {
@@ -61,10 +62,10 @@ entity Address {
 }
 
 ' Связи
-User ||--o{ Booking : "makes"
 Booking }|--|| Vehicle : "for"
-Booking }|--o| Address : "delivered to"
+User ||--o{ Booking : "makes"
 Booking ||--|| Payment : "has"
 User ||--o{ Address : "has"
+Booking }|--o| Address : "delivered to"
 
 @enduml

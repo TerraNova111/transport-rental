@@ -5,14 +5,13 @@ import com.example.transportrental.components.PriceCalculator;
 import com.example.transportrental.dto.booking.BookingCreateDTO;
 import com.example.transportrental.dto.booking.BookingDTO;
 import com.example.transportrental.exceptions.VehicleUnavailableException;
-import com.example.transportrental.model.Address;
-import com.example.transportrental.model.Booking;
+import com.example.transportrental.model.*;
 import com.example.transportrental.model.enums.BookingStatus;
-import com.example.transportrental.model.User;
-import com.example.transportrental.model.Vehicle;
+import com.example.transportrental.model.enums.PaymentStatus;
 import com.example.transportrental.model.enums.ServiceCategory;
 import com.example.transportrental.repository.AddressRepository;
 import com.example.transportrental.repository.BookingRepository;
+import com.example.transportrental.repository.PaymentRepository;
 import com.example.transportrental.repository.VehicleRepository;
 import jakarta.transaction.Transactional;
 import jakarta.xml.bind.ValidationException;
@@ -35,6 +34,7 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final VehicleRepository vehicleRepository;
     private final AddressRepository addressRepository;
+    private final PaymentRepository paymentRepository;
     private final UserService userService;
     private final VehicleService vehicleService;
     private final BookingMapper bookingMapper;
@@ -118,6 +118,13 @@ public class BookingService {
         booking.setPrice(price);
 
         Booking savedBooking = bookingRepository.save(booking);
+        Payment payment = new Payment();
+        payment.setBooking(savedBooking);
+        payment.setAmount(price);
+        payment.setStatus(PaymentStatus.PENDING);
+        payment.setPaymentMethod("STRIPE");
+        paymentRepository.save(payment);
+        
         return bookingMapper.toDto(savedBooking);
     }
 

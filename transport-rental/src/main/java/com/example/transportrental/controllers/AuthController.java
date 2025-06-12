@@ -91,8 +91,8 @@ public class AuthController {
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        user.setResetToken(null); // сбрасываем токен
-        user.setResetTokenExpiry(null); // сбрасываем срок действия
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
 
         userRepository.save(user);
 

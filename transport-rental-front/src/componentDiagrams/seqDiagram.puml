@@ -1,0 +1,47 @@
+@startuml
+autonumber
+
+actor User
+participant "BookingForm (React)" as Form
+participant "createAddress" as AddressClient
+participant "createBooking" as BookingClient
+participant "AddressController" as AddressCtrl
+participant "AddressService" as AddressSvc
+participant "BookingController" as BookingCtrl
+participant "BookingService" as BookingSvc
+participant "UserService" as UserSvc
+participant "VehicleService" as VehicleSvc
+participant "AddressRepository" as AddrRepo
+participant "BookingRepository" as BookRepo
+participant "StripeService" as Stripe
+
+== Ввод данных ==
+User -> Form : вводит даты и адреса
+
+== Создание адресов (если заданы) ==
+Form -> AddressClient : createAddress(addressInfo)
+AddressClient -> AddressCtrl : POST /api/addresses
+AddressCtrl -> AddressSvc : createAddress()
+AddressSvc -> UserSvc : getCurrentUser()
+AddressSvc -> AddrRepo : save(address)
+AddressSvc --> AddressCtrl : AddressDTO
+AddressCtrl --> AddressClient : AddressDTO
+
+== Создание бронирования ==
+Form -> BookingClient : createBooking(data)
+BookingClient -> BookingCtrl : POST /api/bookings
+BookingCtrl -> BookingSvc : createBooking()
+
+BookingSvc -> UserSvc : getCurrentUser()
+BookingSvc -> VehicleSvc : isVehicleAvailable()
+BookingSvc -> AddrRepo : findById() для delivery/loading/unloading
+BookingSvc -> BookRepo : save(booking)
+BookingSvc --> BookingCtrl : BookingDTO
+BookingCtrl --> BookingClient : BookingDTO
+
+== Создание сессии оплаты ==
+BookingClient -> Stripe : createPaymentSession(booking)
+Stripe -> BookingClient : checkout URL
+BookingClient -> Form : redirect to Stripe
+
+@enduml
