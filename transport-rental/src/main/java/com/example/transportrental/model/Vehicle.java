@@ -37,14 +37,11 @@ public class Vehicle {
     @Column
     private Integer quantity;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private BigDecimal pricePerDay;
 
-    @Column(name = "transport_price_per_km", nullable = true)
-    private BigDecimal transportPricePerKm;
-
-    @Column(name = "transport_base_fee", nullable = true)
-    private BigDecimal transportBaseFee;
+    @Column(nullable = true)
+    private BigDecimal ratePerKm;
 
     @Column(nullable = false)
     private boolean available;

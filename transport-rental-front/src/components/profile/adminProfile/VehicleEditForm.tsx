@@ -3,6 +3,7 @@ import { Vehicle } from "../../../types/Vehicle";
 import { updateVehicle } from "../../../api/updateVehicle";
 import styles from "../../../styles/buttons/AddVehicleFormButton.module.css";
 
+
 interface VehicleEditFormProps {
     vehicle: Vehicle;
     onCancel: () => void;
@@ -56,6 +57,12 @@ const VehicleEditForm: React.FC<VehicleEditFormProps> = ({ vehicle, onCancel, on
 
     return (
         <div className="bg-white shadow-xl rounded-2xl p-8 mt-10 space-y-6 border border-gray-200">
+            <button
+                onClick={onCancel}
+                className={`${styles.button} w-1/6`}
+            >
+                Назад
+            </button>
             <h3 className="text-3xl font-bold text-gray-800">
                 Редактировать: {editVehicle.name}
             </h3>
@@ -80,7 +87,6 @@ const VehicleEditForm: React.FC<VehicleEditFormProps> = ({ vehicle, onCancel, on
                     value={selectedCategory}
                     onChange={(e) => {
                         setSelectedCategory(e.target.value);
-                        // обнуляем специфические поля при смене категории
                         setDescriptionDetailed({});
                     }}
                     className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none
@@ -140,16 +146,39 @@ const VehicleEditForm: React.FC<VehicleEditFormProps> = ({ vehicle, onCancel, on
             </div>
 
             {/* Цена */}
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Цена за день</label>
-                <input
-                    type="number"
-                    value={editVehicle.pricePerDay || 0}
-                    onChange={(e) => setEditVehicle({...editVehicle, pricePerDay: Number(e.target.value)})}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2
-                    focus:ring-blue-500 transition"
-                />
-            </div>
+            {editVehicle.serviceCategory === "RENTAL" && (
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Цена за день</label>
+                    <input
+                        type="number"
+                        value={editVehicle.pricePerDay || 0}
+                        onChange={(e) =>
+                            setEditVehicle({
+                                ...editVehicle,
+                                pricePerDay: Number(e.target.value),
+                            })
+                        }
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    />
+                </div>
+            )}
+
+            {editVehicle.serviceCategory === "TRANSPORT" && (
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Цена за км</label>
+                    <input
+                        type="number"
+                        value={editVehicle.ratePerKm || 0}
+                        onChange={(e) =>
+                            setEditVehicle({
+                                ...editVehicle,
+                                ratePerKm: Number(e.target.value),
+                            })
+                        }
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    />
+                </div>
+            )}
 
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Изображение</label>
@@ -180,7 +209,7 @@ const VehicleEditForm: React.FC<VehicleEditFormProps> = ({ vehicle, onCancel, on
             </div>
 
             <h4 className="font-semibold mb-2">Общие характеристики</h4>
-            {commonFields.filter((field)=> field.key == "description")
+            {commonFields.filter((field) => field.key == "description")
                 .map((field) => (
                     <div className="mb-4" key={field.key}>
                         <label className="block text-sm font-medium text-gray-700 mb-1">{field.label}</label>
@@ -193,19 +222,19 @@ const VehicleEditForm: React.FC<VehicleEditFormProps> = ({ vehicle, onCancel, on
                     </div>
                 ))}
 
-            {commonFields.filter((field)=> field.key != "description")
+            {commonFields.filter((field) => field.key != "description")
                 .map((field) => (
-                <div className="mb-4" key={field.key}>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{field.label}</label>
-                    <input
-                        type={field.type}
-                        value={descriptionDetailed[field.key] || ""}
-                        onChange={(e) => handleDescriptionChange(field.key, e.target.value)}
-                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2
+                    <div className="mb-4" key={field.key}>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{field.label}</label>
+                        <input
+                            type={field.type}
+                            value={descriptionDetailed[field.key] || ""}
+                            onChange={(e) => handleDescriptionChange(field.key, e.target.value)}
+                            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2
                        focus:ring-blue-500 transition"
-                    />
-                </div>
-            ))}
+                        />
+                    </div>
+                ))}
 
             {/* Специфические поля */}
             <h4 className="font-semibold mb-2">Специфические характеристики</h4>
@@ -224,12 +253,6 @@ const VehicleEditForm: React.FC<VehicleEditFormProps> = ({ vehicle, onCancel, on
 
             {/* Кнопки */}
             <div className="flex justify-end space-x-3">
-                <button
-                    onClick={onCancel}
-                    className={`${styles.button} w-1/6`}
-                >
-                    Назад
-                </button>
                 <button
                     onClick={handleSave}
                     className={`${styles.button} w-2/6`}

@@ -23,4 +23,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
                             @Param("startDate") LocalDate startDate,
                             @Param("endDate") LocalDate endDate,
                             @Param("statuses") List<BookingStatus> statuses);
+
+    List<Booking> findByStatusAndStartDateLessThanEqual(BookingStatus status, LocalDate startDate);
 }

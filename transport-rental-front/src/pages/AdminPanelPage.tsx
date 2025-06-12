@@ -23,6 +23,7 @@ const AdminPanelPage: React.FC = () => {
                 <div className="edit-avatar text-black cursor-pointer">
                     <Pencil className="w-4 h-4"/>
                 </div>
+
             </div>
             <div className="mt-20 bg-white">
                 <div className="flex flex-wrap">

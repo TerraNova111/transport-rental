@@ -11,6 +11,10 @@ import VehiclePage from "./pages/VehiclePage.js";
 import PaymentSuccessPage from "./pages/payment/PaymentSuccessPage.tsx";
 import CatalogHomePage from "./pages/CatalogHomePage.js";
 import PaymentCancel from "./pages/payment/PaymentCancel.js";
+import ContactsPage from "./pages/ContactsPage.js";
+import ServicesPage from "./pages/ServicesPage.js";
+import ScrollToTop from "./utils/ScrollToTop.js";
+import ResetPasswordPage from "./pages/ResetPasswordPage.js";
 
 
 export default function App() {
@@ -19,6 +23,7 @@ export default function App() {
                 <Header/>
 
                 <main className="">
+                    <ScrollToTop></ScrollToTop>
                     <Routes>
                         <Route path="/" element={<HomePage/>}/>
                         <Route path="/profile"
@@ -35,6 +40,11 @@ export default function App() {
                                    </ProtectedRoute>
                                }
                         />
+                        <Route path="/services" element={<ServicesPage />} />
+                        <Route path="/contacts" element={<ContactsPage />} />
+
+                        <Route path="/reset-password" element={<ResetPasswordPage />} />
+
                         <Route path="/catalog" element={<CatalogHomePage />} />
                         <Route path="/catalog/:serviceCategory" element={<CatalogPage />} />
                         <Route path="/catalog/:serviceCategory/:category" element={<CatalogPage />} />

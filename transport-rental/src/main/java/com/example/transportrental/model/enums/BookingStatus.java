@@ -2,7 +2,9 @@ package com.example.transportrental.model.enums;
 
 public enum BookingStatus {
     PENDING,
-    APPROVED,
     PAID,
+    IN_PROGRESS,
+    RETURN_REQUESTED,
+    RETURNED,
     CANCELED
 }

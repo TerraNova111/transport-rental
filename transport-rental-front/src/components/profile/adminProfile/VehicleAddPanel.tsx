@@ -24,6 +24,7 @@ const VehicleAddPanel: React.FC = () => {
         category: "",
         description: "",
         pricePerDay: "",
+        ratePerKm: "",
         available: true,
         quantity: 1,
         serviceCategory: "",
@@ -169,19 +170,41 @@ const VehicleAddPanel: React.FC = () => {
             ))}
 
 
-            {/* Цена за день и Количество в одной строке на больших экранах */}
             <div className="flex flex-col md:flex-row md:space-x-4">
                 <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Цена за день</label>
-                    <input
-                        type="number"
-                        placeholder="Введите цену за день"
-                        value={formData.pricePerDay}
-                        onChange={(e) => setFormData({...formData, pricePerDay: e.target.value})}
-                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2
-                        focus:ring-blue-500 transition"
-                        required
-                    />
+                    {formData.serviceCategory === "TRANSPORT" ? (
+                        <>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Цена за километр
+                            </label>
+                            <input
+                                type="number"
+                                placeholder="Введите цену за километр"
+                                value={formData.ratePerKm}
+                                onChange={(e) =>
+                                    setFormData({...formData, ratePerKm: e.target.value})
+                                }
+                                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                required
+                            />
+                        </>
+                    ) : (
+                        <>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Цена за день
+                            </label>
+                            <input
+                                type="number"
+                                placeholder="Введите цену за день"
+                                value={formData.pricePerDay}
+                                onChange={(e) =>
+                                    setFormData({...formData, pricePerDay: e.target.value})
+                                }
+                                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                required
+                            />
+                        </>
+                    )}
                 </div>
 
                 {/* Количество */}
@@ -197,8 +220,7 @@ const VehicleAddPanel: React.FC = () => {
                                 quantity: parseInt(e.target.value, 10) || 0
                             })
                         }
-                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2
-                        focus:ring-blue-500 transition"
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                         required
                     />
                 </div>

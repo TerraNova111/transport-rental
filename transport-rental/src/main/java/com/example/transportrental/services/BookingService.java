@@ -1,6 +1,7 @@
 package com.example.transportrental.services;
 
 import com.example.transportrental.components.BookingMapper;
+import com.example.transportrental.components.PriceCalculator;
 import com.example.transportrental.dto.booking.BookingCreateDTO;
 import com.example.transportrental.dto.booking.BookingDTO;
 import com.example.transportrental.exceptions.VehicleUnavailableException;
@@ -22,7 +23,9 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 
@@ -56,14 +59,19 @@ public class BookingService {
     }
 
     public BookingDTO createBooking(BookingCreateDTO request) throws ValidationException {
-
         User user = userService.getCurrentUser();
         Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
                 .orElseThrow(() -> new RuntimeException("Техника не найдена"));
 
-        boolean available = vehicleService.isVehicleAvailable(vehicle.getId(), request.getStartDate(), request.getEndDate());
-        if (!available) {
-            throw new VehicleUnavailableException("Техника недоступна на выбранные даты");
+        if (request.getServiceCategory() == ServiceCategory.RENTAL) {
+            boolean available = vehicleService.isVehicleAvailable(
+                    vehicle.getId(),
+                    request.getStartDate(),
+                    request.getEndDate()
+            );
+            if (!available) {
+                throw new VehicleUnavailableException("Техника недоступна на выбранные даты");
+            }
         }
 
         Booking booking = new Booking();
@@ -73,8 +81,12 @@ public class BookingService {
         booking.setEndDate(request.getEndDate());
         booking.setStatus(BookingStatus.PENDING);
         booking.setServiceCategory(request.getServiceCategory());
-        validateBookingDates(bookingMapper.toDto(booking));
 
+        if (request.getServiceCategory() == ServiceCategory.RENTAL) {
+            validateBookingDates(bookingMapper.toDto(booking));
+        }
+
+        BigDecimal price;
         if (request.getServiceCategory() == ServiceCategory.RENTAL) {
             if (request.getDeliveryAddressId() == null) {
                 throw new IllegalArgumentException("Для аренды требуется Адрес доставки.");
@@ -82,6 +94,9 @@ public class BookingService {
             Address deliveryAddress = addressRepository.findById(request.getDeliveryAddressId())
                     .orElseThrow(() -> new RuntimeException("Адрес доставки не найден."));
             booking.setDeliveryAddress(deliveryAddress);
+
+            long days = ChronoUnit.DAYS.between(request.getStartDate(), request.getEndDate()) + 1;
+            price = vehicle.getPricePerDay().multiply(BigDecimal.valueOf(days));
 
         } else if (request.getServiceCategory() == ServiceCategory.TRANSPORT) {
             if (request.getLoadingAddressId() == null || request.getUnloadingAddressId() == null) {
@@ -93,9 +108,14 @@ public class BookingService {
                     .orElseThrow(() -> new RuntimeException("Адрес выгрузки не найден."));
             booking.setLoadingAddress(loadingAddress);
             booking.setUnloadingAddress(unloadingAddress);
+
+            price = PriceCalculator.calculateTransportServicePrice(vehicle, loadingAddress, unloadingAddress);
+
         } else {
             throw new IllegalArgumentException("Неверная категория услуги.");
         }
+
+        booking.setPrice(price);
 
         Booking savedBooking = bookingRepository.save(booking);
         return bookingMapper.toDto(savedBooking);
@@ -135,11 +155,15 @@ public class BookingService {
         return bookingMapper.toDto(bookingRepository.save(booking));
     }
 
-    public BookingDTO approveBooking(Long id) {
-        return updateBookingStatus(id, BookingStatus.APPROVED);
-    }
-
     public BookingDTO cancelBooking(Long id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Бронирование не найдено"));
+
+        if (booking.getStatus() != BookingStatus.PENDING &&
+                booking.getStatus() != BookingStatus.PAID) {
+            throw new IllegalStateException("Нельзя отменить бронирование в текущем статусе: " + booking.getStatus());
+        }
+
         return updateBookingStatus(id, BookingStatus.CANCELED);
     }
 
@@ -156,6 +180,40 @@ public class BookingService {
             if (dto.getStartDate() == null || dto.getEndDate() == null) {
                 throw new ValidationException("Dates are required for rental services");
             }
+        }
+    }
+
+    public BookingDTO requestReturn(Long id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Бронирование не найдено"));
+
+        if (booking.getStatus() != BookingStatus.PAID && booking.getStatus() != BookingStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Нельзя запросить возврат в статусе: " + booking.getStatus());
+        }
+
+        booking.setStatus(BookingStatus.RETURN_REQUESTED);
+        return bookingMapper.toDto(bookingRepository.save(booking));
+    }
+
+    public BookingDTO confirmReturn(Long id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Бронирование не найдено"));
+
+        if (booking.getStatus() != BookingStatus.RETURN_REQUESTED) {
+            throw new IllegalStateException("Нельзя подтвердить возврат. Статус: " + booking.getStatus());
+        }
+
+        booking.setStatus(BookingStatus.RETURNED);
+        return bookingMapper.toDto(bookingRepository.save(booking));
+    }
+
+    @Transactional
+    public void updateBookingsToInProgress() {
+        LocalDate today = LocalDate.now();
+        List<Booking> bookings = bookingRepository.findByStatusAndStartDateLessThanEqual(BookingStatus.PAID, today);
+        for (Booking booking : bookings) {
+            booking.setStatus(BookingStatus.IN_PROGRESS);
+            bookingRepository.save(booking);
         }
     }
 

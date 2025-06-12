@@ -15,11 +15,13 @@ import java.util.function.Function;
 public class JwtUtil {
     private final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    public String generateToken(String email, String username, Role role) {
+    public String generateToken(String email, String username, Role role, String name, String phone) {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("username", username)
                 .claim("role", role)
+                .claim("name", name)
+                .claim("phone", phone)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
                 .signWith(SECRET_KEY)

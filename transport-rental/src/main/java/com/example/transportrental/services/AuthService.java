@@ -24,9 +24,11 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.USER);
+        user.setPhone(request.getPhone());
+        user.setFullName(request.getName());
         userRepository.save(user);
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getUsername(), user.getRole());
+        String token = jwtUtil.generateToken(user.getEmail(), user.getUsername(), user.getRole(), user.getFullName(), user.getPhone());
         return new AuthResponseDTO(token);
     }
 
@@ -38,7 +40,7 @@ public class AuthService {
             throw new RuntimeException("Incorrect password");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getUsername(), user.getRole());
+        String token = jwtUtil.generateToken(user.getEmail(), user.getUsername(), user.getRole(), user.getFullName(), user.getPhone());
         return new AuthResponseDTO(token);
     }
 

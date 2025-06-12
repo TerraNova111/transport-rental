@@ -4,6 +4,8 @@ type User = {
     username: string;
     email: string;
     role: string;
+    name: string;
+    phone: string;
 }
 
 type AuthContextType = {
@@ -31,6 +33,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 username: payload.username,
                 email: payload.sub,
                 role: payload.role,
+                name: payload.name,
+                phone: payload.phone
             });
 
             fetch('/api/auth/validate', {
@@ -62,6 +66,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             username: payload.username,
             email: payload.sub,
             role: payload.role,
+            name: payload.name,
+            phone: payload.phone
         });
         setIsAuthValidated(true);
     }

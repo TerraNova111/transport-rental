@@ -6,10 +6,8 @@ import com.example.transportrental.model.enums.BookingStatus;
 import com.example.transportrental.model.User;
 import com.example.transportrental.repository.UserRepository;
 import com.example.transportrental.services.BookingService;
-import com.example.transportrental.services.VehicleService;
 import jakarta.xml.bind.ValidationException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import org.springframework.web.bind.annotation.*;
@@ -71,18 +69,24 @@ public class BookingController {
         return bookingService.cancelBooking(id);
     }
 
-    @PostMapping("/approved/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public BookingDTO approveBooking(@PathVariable Long id) {
-        return bookingService.approveBooking(id);
-    }
-
     @GetMapping("/my")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public List<BookingDTO> getMyBookings(Principal principal) {
         String email = principal.getName();
         User user = userRepository.findByEmail(email).orElseThrow();
         return bookingService.getBookingByUser(user.getId());
+    }
+
+    @PostMapping("/{id}/request-return")
+    @PreAuthorize("hasRole('USER')")
+    public BookingDTO requestReturn(@PathVariable Long id) {
+        return bookingService.requestReturn(id);
+    }
+
+    @PostMapping("/{id}/confirm-return")
+    @PreAuthorize("hasRole('ADMIN')")
+    public BookingDTO confirmReturn(@PathVariable Long id) {
+        return bookingService.confirmReturn(id);
     }
 
 }

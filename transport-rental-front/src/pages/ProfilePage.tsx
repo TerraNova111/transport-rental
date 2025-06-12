@@ -29,11 +29,13 @@ const ProfilePage: React.FC = () => {
                 </div>
             </div>
 
-            <p className="text-3xl mx-3 my-3">{user.username.split("@")[0]}</p>
-
-            <div className="p-6 mb-6 flex flex-row gap-3 text-gray-500">
-                <Mail className="w-5 h-5 mt-0.5 text-gray-600"/>
-                <p>{user.email}</p>
+            <div className="p-6 mb-6 flex flex-col gap-3 text-gray-500">
+                <div className="flex flex-row gap-2">
+                    <Mail className="w-5 h-5 mt-0.5 text-gray-600"/>
+                    <p>Почта: {user.email}</p>
+                </div>
+                <p>Имя: {user.name}</p>
+                <p>Телефон: {user.phone}</p>
             </div>
 
             <div className="bg-white">

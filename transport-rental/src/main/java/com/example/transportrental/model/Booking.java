@@ -5,6 +5,7 @@ import com.example.transportrental.model.enums.ServiceCategory;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @ToString
@@ -52,4 +53,8 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unloading_address_id")
     private Address unloadingAddress;
+
+    @Column(nullable = true)
+    private BigDecimal price;
+
 }

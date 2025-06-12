@@ -4,6 +4,7 @@ import com.example.transportrental.dto.user.*;
 import com.example.transportrental.model.User;
 import com.example.transportrental.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,8 +33,12 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> registerUser(@RequestBody UserRegistrationRequestDTO request) {
-        return ResponseEntity.ok(userService.saveUser(request));
+    public ResponseEntity<?> registerUser(@RequestBody UserRegistrationRequestDTO request) {
+        try {
+            return ResponseEntity.ok(userService.saveUser(request));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        }
     }
 
     @GetMapping("/profile")

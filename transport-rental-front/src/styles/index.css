@@ -134,8 +134,16 @@ h1 {
   margin: 0 auto;
 }
 
-.admin-panel, .profile, .vehicle-page{
+.admin-panel, .profile{
   margin-top: 150px;
+}
+
+.contacts-page, .about-page, .services-page{
+  margin-top: 250px;
+}
+
+.vehicle-page{
+  margin-top: 50px;
 }
 
 .catalog-page{

@@ -7,8 +7,9 @@ import {
     SignIn,
 } from "@phosphor-icons/react";
 
-import AuthPopup from "./auth/AuthModal";
+import AuthPopup from "./auth/AuthPopup";
 import {useAuth} from "./auth/AuthContext";
+import ForgotPasswordModal from "./auth/ForgotPasswordModal";
 
 
 const Header: React.FC = () => {
@@ -16,6 +17,24 @@ const Header: React.FC = () => {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
     const { user, logout, isAuthValidated } = useAuth()
     const navigate = useNavigate();
+
+    const [authOpen, setAuthOpen] = useState(false);
+    const [forgotOpen, setForgotOpen] = useState(false);
+
+    const handleOpenAuth = () => {
+        setAuthOpen(true);
+        setForgotOpen(false);
+    };
+
+    const handleOpenForgot = () => {
+        setForgotOpen(true);
+        setAuthOpen(false);
+    };
+
+    const handleCloseAll = () => {
+        setAuthOpen(false);
+        setForgotOpen(false);
+    };
 
     return (
         <header
@@ -66,7 +85,7 @@ const Header: React.FC = () => {
                             ) : (
                                 <button
                                     className="p-2"
-                                    onClick={() => setIsAuthModalOpen(true)}
+                                    onClick={handleOpenAuth}
                                     title="Войти"
                                 >
                                     <SignIn size={24}
@@ -78,29 +97,37 @@ const Header: React.FC = () => {
                 </div>
             </div>
 
-            <nav className="flex w-full items-center justify-between normal-case">
-                <Link to="/" className="text-gray-700 nav-items border-r-2 border-l-1 text-2xl">
+            <nav className="flex flex-col sm:flex-row w-full items-center justify-between normal-case">
+                <Link to="/"
+                      className="text-gray-700 nav-items border-b sm:border-b-0 sm:border-r-2 py-2 px-4 text-xl sm:text-2xl w-full sm:w-auto text-center">
                     Главная
                 </Link>
-                <Link to="/services" className="text-gray-700 nav-items border-r-2 border-l-1 text-2xl">
+                <Link to="/services"
+                      className="text-gray-700 nav-items border-b sm:border-b-0 sm:border-r-2 py-2 px-4 text-xl sm:text-2xl w-full sm:w-auto text-center">
                     Услуги
                 </Link>
-                <Link to="/catalog" className="text-gray-700 nav-items border-r-2 border-l-1 text-2xl">
+                <Link to="/catalog"
+                      className="text-gray-700 nav-items border-b sm:border-b-0 sm:border-r-2 py-2 px-4 text-xl sm:text-2xl w-full sm:w-auto text-center">
                     Автопарк
                 </Link>
-                <Link to="/aboout-us" className="text-gray-700 nav-items border-r-2 border-l-1 text-2xl">
-                    О нас
-                </Link>
-                <Link to="/contacts" className="flex-1 text-gray-700 nav-items border-r-2 border-l-1 text-2xl">
+                <Link to="/contacts"
+                      className="text-gray-700 nav-items py-2 px-4 text-xl sm:text-2xl w-full sm:w-auto text-center">
                     Контакты
                 </Link>
             </nav>
 
             <AuthPopup
-                isOpen={isAuthModalOpen}
-                onClose={() => setIsAuthModalOpen(false)}
-                onSuccess={() => setIsAuthModalOpen(false)}
+                isOpen={authOpen}
+                onClose={handleCloseAll}
+                onSuccess={handleCloseAll}
+                onForgotPassword={handleOpenForgot}
             />
+
+            {forgotOpen && (
+                <ForgotPasswordModal
+                    onClose={handleOpenAuth} // при закрытии возвращаемся к AuthPopup
+                />
+            )}
         </header>
     );
 };

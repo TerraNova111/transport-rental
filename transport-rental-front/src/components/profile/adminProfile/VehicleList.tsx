@@ -6,11 +6,20 @@ import VehicleEditForm from "./VehicleEditForm";
 
 import styles from "../../../styles/buttons/GenericButton.module.css";
 
-
+const PAGE_SIZE = 8;
 
 const VehicleList: React.FC = () => {
     const [vehicles, setVehicles] = useState<Vehicle[]>([]);
     const [editVehicle, setEditVehicle] = useState<Vehicle | null>(null);
+
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const totalPages = Math.ceil(vehicles.length / PAGE_SIZE);
+
+    const vehiclesToShow = vehicles.slice(
+        (currentPage - 1) * PAGE_SIZE,
+        currentPage * PAGE_SIZE
+    );
 
     useEffect(() => {
         fetchVehicles();
@@ -61,8 +70,8 @@ const VehicleList: React.FC = () => {
     return (
         <div className="bg-white pt-10 rounded-xl  p-6">
             <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Список техники</h2>
-            <ul className="space-y-4">
-                {vehicles.map(vehicle => (
+            <ul className="space-y-4 min-h-[800px]">
+                {vehiclesToShow.map(vehicle => (
                     <li
                         key={vehicle.id}
                         className="border rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between hover:shadow-md transition duration-300"
@@ -82,8 +91,19 @@ const VehicleList: React.FC = () => {
                             </div>
                         </div>
                         <div className="flex flex-col items-end space-y-2">
-                            <p className="font-bold text-lg text-green-600">{vehicle.pricePerDay}₸ <span
-                                className="text-sm font-normal text-gray-500">/ день</span></p>
+                            <p className="font-bold text-lg text-green-600">
+                                {vehicle.serviceCategory === "RENTAL" && (
+                                    <>
+                                        {vehicle.pricePerDay}₸ <span className="text-sm font-normal text-gray-500">/ день</span>
+                                    </>
+                                )}
+                                {vehicle.serviceCategory === "TRANSPORT" && (
+                                    <>
+                                        {vehicle.ratePerKm}₸ <span
+                                        className="text-sm font-normal text-gray-500">/ км</span>
+                                    </>
+                                )}
+                            </p>
                             <div className="flex space-x-2">
                                 <button
                                     onClick={() => handleEdit(vehicle)}
@@ -102,6 +122,35 @@ const VehicleList: React.FC = () => {
                     </li>
                 ))}
             </ul>
+            <div className="flex justify-center mt-4 space-x-2">
+                <button
+                    onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 border rounded disabled:opacity-50"
+                >
+                    Назад
+                </button>
+
+                {Array.from({length: totalPages}, (_, i) => (
+                    <button
+                        key={i + 1}
+                        onClick={() => setCurrentPage(i + 1)}
+                        className={`px-3 py-1 border rounded ${
+                            currentPage === i + 1 ? "bg-blue-500 text-white" : ""
+                        }`}
+                    >
+                        {i + 1}
+                    </button>
+                ))}
+
+                <button
+                    onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 border rounded disabled:opacity-50"
+                >
+                    Вперед
+                </button>
+            </div>
         </div>
     );
 };

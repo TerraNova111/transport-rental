@@ -19,6 +19,7 @@ public class VehicleDTO {
     private String description;
     private String category;
     private BigDecimal pricePerDay;
+    private BigDecimal ratePerKm;
     private Integer quantity;
     private boolean available;
     private String imageUrl;

@@ -19,6 +19,8 @@ public class BookingMapper {
         dto.setStartDate(booking.getStartDate());
         dto.setEndDate(booking.getEndDate());
         dto.setStatus(booking.getStatus());
+        dto.setPrice(booking.getPrice());
+        dto.setServiceCategory(booking.getServiceCategory());
 
         User user = booking.getUser();
         UserSummaryDTO userDto = new UserSummaryDTO();

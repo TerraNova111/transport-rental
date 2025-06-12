@@ -5,9 +5,10 @@ interface AuthPopupProps {
     isOpen: boolean
     onClose: () => void
     onSuccess: () => void;
+    onForgotPassword: () => void;
 }
 
-const AuthPopup: React.FC<AuthPopupProps> = ({ isOpen, onClose, onSuccess }) => {
+const AuthPopup: React.FC<AuthPopupProps> = ({ isOpen, onClose, onSuccess, onForgotPassword  }) => {
     const [visible, setVisible] = useState(isOpen)
 
     useEffect(() => {
@@ -35,7 +36,7 @@ const AuthPopup: React.FC<AuthPopupProps> = ({ isOpen, onClose, onSuccess }) => 
                     transform transition-transform duration-300
                     ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
-                style={{ minHeight: '600px' }}
+                style={{ minHeight: '500px' }}
             >
                 <button
                     onClick={onClose}
@@ -47,7 +48,7 @@ const AuthPopup: React.FC<AuthPopupProps> = ({ isOpen, onClose, onSuccess }) => 
                 </button>
 
 
-                <AuthForm onSuccess={onSuccess} />
+                <AuthForm onSuccess={onSuccess} onForgotPassword={onForgotPassword}/>
             </div>
         </div>
     )

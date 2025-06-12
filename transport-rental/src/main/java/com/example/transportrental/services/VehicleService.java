@@ -89,6 +89,7 @@ public class VehicleService {
             vehicle.setQuantity(dto.getQuantity());
             vehicle.setAvailable(dto.isAvailable());
             vehicle.setPricePerDay(dto.getPricePerDay());
+            vehicle.setRatePerKm(dto.getRatePerKm());
             vehicle.setImageUrl(fileName);
             vehicle.setServiceCategory(dto.getServiceCategory());
             vehicle.setDescriptionDetailed(dto.getDescriptionDetailed());
@@ -148,6 +149,7 @@ public class VehicleService {
         dto.setAvailable(vehicle.isAvailable());
         dto.setQuantity(vehicle.getQuantity());
         dto.setPricePerDay(vehicle.getPricePerDay());
+        dto.setRatePerKm(vehicle.getRatePerKm());
         dto.setImageUrl(vehicle.getImageUrl());
         dto.setServiceCategory(vehicle.getServiceCategory());
         dto.setDescriptionDetailed(vehicle.getDescriptionDetailed());
@@ -164,7 +166,7 @@ public class VehicleService {
                 .orElseThrow(() -> new RuntimeException("Техника не найдена"))
                 .getQuantity();
 
-        List<BookingStatus> statuses = List.of(BookingStatus.PENDING, BookingStatus.APPROVED, BookingStatus.PAID);
+        List<BookingStatus> statuses = List.of(BookingStatus.PENDING, BookingStatus.IN_PROGRESS, BookingStatus.PAID);
 
         int bookedCount = bookingRepository.countActiveBookings(vehicleId, startDate, endDate, statuses);
 
@@ -176,7 +178,7 @@ public class VehicleService {
                 .orElseThrow(() -> new RuntimeException("Техника не найдена"))
                 .getQuantity();
 
-        List<BookingStatus> statuses = List.of(BookingStatus.PENDING, BookingStatus.APPROVED, BookingStatus.PAID);
+        List<BookingStatus> statuses = List.of(BookingStatus.PENDING, BookingStatus.IN_PROGRESS, BookingStatus.PAID);
 
         int bookedCount = bookingRepository.countActiveBookings(vehicleId, startDate, endDate, statuses);
 

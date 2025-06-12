@@ -1,4 +1,3 @@
-// AuthForm.tsx
 import React, { useState } from 'react'
 import { useAuth } from './AuthContext'
 import { loginUser, registerUser } from '../../api/authApi'
@@ -7,18 +6,23 @@ import styles from "../../styles/AuthForm.module.css"
 import buttonStyle from "../../styles/buttons/AddVehicleFormButton.module.css";
 
 import GoogleIcon  from '../../assets/icons/google-icon-logo.svg';
+import ForgotPasswordModal from "./ForgotPasswordModal";
 
 type AuthFormProps = {
     onSuccess?: () => void
+    onForgotPassword: () => void;
 }
 
-const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
+const AuthForm: React.FC<AuthFormProps> = ({ onSuccess, onForgotPassword  }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [fullName, setFullName] = useState('');
+    const [phone, setPhone] = useState('');
     const [error, setError] = useState<string | null>(null);
     const { login } = useAuth();
     const [loading, setLoading] = useState(false);
+
 
     const [showPassword, setShowPassword] = useState(false);
 
@@ -30,15 +34,22 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
         try {
             const data = isLogin
                 ? await loginUser(email, password)
-                : await registerUser(email, password);
+                : await registerUser({
+                    email,
+                    password,
+                    fullName,
+                    phone,
+                    address: '',
+                });
 
             login(data.token);
             if (onSuccess) onSuccess();
-        } catch (err: any) {
-            console.error(err);
-            setError('Ошибка авторизации или регистрации');
-        } finally {
-            setLoading(false);
+        } catch (error: any) {
+            if (error.response?.status === 409) {
+                setError(error.response.data);
+            } else {
+                setError("Произошла ошибка. Попробуйте позже.");
+            }
         }
     };
 
@@ -68,8 +79,40 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
                     />
                 </div>
 
+                {!isLogin && (
+                    <>
+                        <div className={styles["flex-column"]}>
+                            <label>Имя</label>
+                        </div>
+                        <div className={styles.inputForm}>
+                            <input
+                                type="text"
+                                className={styles.input}
+                                placeholder="Имя"
+                                value={fullName}
+                                onChange={(e) => setFullName(e.target.value)}
+                                required
+                            />
+                        </div>
+
+                        <div className={styles["flex-column"]}>
+                            <label>Телефон</label>
+                        </div>
+                        <div className={styles.inputForm}>
+                            <input
+                                type="tel"
+                                className={styles.input}
+                                placeholder="+7 900 000-00-00"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                required
+                            />
+                        </div>
+                    </>
+                )}
+
                 <div className={styles["flex-column"]}>
-                    <label>Password</label>
+                    <label>Пароль</label>
                 </div>
                 <div className={styles.inputForm}>
                     <svg
@@ -105,12 +148,18 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
 
                 {/* Remember me and Forgot password */}
                 <div className={styles["flex-row"]}>
-                    <span className={styles.span}>Forgot password?</span>
+                    <button
+                        type="button"
+                        onClick={onForgotPassword}
+                        className={`${styles.span} underline`}
+                    >
+                        Забыли пароль?
+                    </button>
                 </div>
 
                 {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
-                <button className={`${buttonStyle.button} w-full` } type="submit">
+                <button className={`${buttonStyle.button} w-full`} type="submit">
                     {isLogin ? 'Войти' : 'Зарегистрироваться'}
                 </button>
 
@@ -124,16 +173,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
                     {isLogin ? ' Зарегистрироваться' : ' Войти'}
                     </span>
                 </p>
-
-
-                <p className={`${styles.p} ${styles.line}`}>Или с</p>
-
-                <div className="flex items-center justify-center ">
-                    <button className={`${styles.google}`}>
-                        <img src={GoogleIcon} alt="Google" style={{width: '1em', height: '1em'}}/>
-                        Google
-                    </button>
-                </div>
             </form>
         </div>
     )

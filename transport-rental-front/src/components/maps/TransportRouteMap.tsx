@@ -13,7 +13,7 @@ interface TransportRouteMapProps {
 
 const mapContainerStyle = {
     width: '100%',
-    height: '600px'
+    height: '500px'
 };
 
 const center = {

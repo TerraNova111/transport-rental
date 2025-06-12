@@ -35,6 +35,10 @@ public class UserService implements UserDetailsService {
     }
 
     public UserDTO saveUser(UserRegistrationRequestDTO request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Пользователь с таким email уже существует");
+        }
+        
         User user = new User();
         user.setEmail(request.getEmail());
         user.setFullName(request.getFullName());
